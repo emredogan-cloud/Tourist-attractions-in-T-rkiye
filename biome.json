@@ -15,7 +15,8 @@
       "playwright-report",
       "test-results",
       "prisma/migrations",
-      "src/components/ui/**"
+      "src/components/ui/**",
+      "apps/**"
     ]
   },
   "formatter": {

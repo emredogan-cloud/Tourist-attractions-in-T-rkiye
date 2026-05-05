@@ -59,3 +59,10 @@ next-env.d.ts
 
 # Sentry
 .sentryclirc
+apps/mobile/node_modules
+apps/mobile/.expo
+apps/mobile/dist
+apps/mobile/web-build
+apps/mobile/ios
+apps/mobile/android
+storage/local
