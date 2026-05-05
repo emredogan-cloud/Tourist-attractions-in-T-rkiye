@@ -1,0 +1,577 @@
+// Türkiye Tourism — Prisma schema
+// Provider is sqlite for local zero-dep dev. Switch to postgresql via DATABASE_URL + DATABASE_PROVIDER for production.
+// PostGIS-specific fields (geom) are emulated with separate lat/lng float columns + a JSON-encoded geom field for forward compatibility.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Phase 1 ── Catalog ─────────────────────────────────────────────────────
+
+enum AttractionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AttractionCategoryCode {
+  HISTORICAL
+  NATURAL
+  RELIGIOUS
+  CULTURAL
+  BEACH
+  MUSEUM
+  ARCHAEOLOGICAL
+  ADVENTURE
+  URBAN
+  FOOD_DRINK
+}
+
+enum RegionCode {
+  MARMARA
+  AEGEAN
+  MEDITERRANEAN
+  BLACK_SEA
+  CENTRAL_ANATOLIA
+  EASTERN_ANATOLIA
+  SOUTHEASTERN_ANATOLIA
+}
+
+enum UnescoStatus {
+  WORLD_HERITAGE
+  TENTATIVE
+  INTANGIBLE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum Audience {
+  ADULT
+  STUDENT
+  CHILD
+  SENIOR
+  FOREIGN_ADULT
+  FOREIGN_STUDENT
+}
+
+enum Season {
+  ALL_YEAR
+  SUMMER
+  WINTER
+}
+
+model Region {
+  id        String                 @id @default(cuid())
+  code      RegionCode             @unique
+  nameTr    String
+  nameEn    String
+  provinces Province[]
+  attractions Attraction[]
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+}
+
+model Province {
+  id          String       @id @default(cuid())
+  slug        String       @unique
+  nameTr      String
+  nameEn      String
+  regionId    String
+  region      Region       @relation(fields: [regionId], references: [id])
+  attractions Attraction[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Category {
+  id          String                 @id @default(cuid())
+  code        AttractionCategoryCode @unique
+  slugTr      String                 @unique
+  slugEn      String                 @unique
+  iconKey     String?
+  attractions Attraction[]
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+}
+
+model Attraction {
+  id              String                 @id @default(cuid())
+  externalRef     String?                @unique
+  status          AttractionStatus       @default(PUBLISHED)
+  categoryId      String
+  category        Category               @relation(fields: [categoryId], references: [id])
+  regionId        String
+  region          Region                 @relation(fields: [regionId], references: [id])
+  provinceId      String
+  province        Province               @relation(fields: [provinceId], references: [id])
+  district        String?
+  latitude        Float
+  longitude       Float
+  geom            String? // GeoJSON string — Postgres will use ST_GeomFromGeoJSON
+  elevationM      Int?
+  unescoStatus    UnescoStatus?
+  popularityScore Float                  @default(0)
+  averageRating   Float                  @default(0)
+  reviewCount     Int                    @default(0)
+  isFreeEntry     Boolean                @default(false)
+  accessibility   String? // JSON string of AccessibilityFlags
+  translations    AttractionTranslation[]
+  media           Media[]
+  operatingHours  OperatingHours[]
+  pricing         TicketPricing[]
+  visitorStats    VisitorStats[]
+  reviews         Review[]
+  favorites       Favorite[]
+  nearbyPlaces    NearbyPlace[]
+  itineraryStops  ItineraryStop[]
+  events          Event[]
+  embeddings      AttractionEmbedding[]
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([categoryId])
+  @@index([regionId])
+  @@index([provinceId])
+  @@index([status, popularityScore])
+  @@index([latitude, longitude])
+}
+
+model AttractionTranslation {
+  id           String      @id @default(cuid())
+  attractionId String
+  attraction   Attraction  @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  locale       String
+  name         String
+  slug         String
+  summary      String
+  description  String
+  history      String?
+  tips         String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@unique([attractionId, locale])
+  @@unique([locale, slug])
+  @@index([locale])
+}
+
+model Media {
+  id           String     @id @default(cuid())
+  attractionId String
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  type         MediaType  @default(IMAGE)
+  url          String
+  variants     String? // JSON
+  altTr        String
+  altEn        String
+  photographer String?
+  license      String
+  attribution  String?
+  sortOrder    Int        @default(0)
+  isHero       Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([attractionId, sortOrder])
+}
+
+model OperatingHours {
+  id           String     @id @default(cuid())
+  attractionId String
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  season       Season     @default(ALL_YEAR)
+  dayOfWeek    Int // 0..6
+  openTime     String? // HH:mm
+  closeTime    String?
+  isClosed     Boolean    @default(false)
+  notes        String?
+
+  @@unique([attractionId, season, dayOfWeek])
+}
+
+model TicketPricing {
+  id           String     @id @default(cuid())
+  attractionId String
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  audience     Audience
+  priceTry     Float
+  isFree       Boolean    @default(false)
+  validFrom    DateTime?
+  validTo      DateTime?
+
+  @@unique([attractionId, audience, validFrom])
+}
+
+model VisitorStats {
+  id           String     @id @default(cuid())
+  attractionId String
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  year         Int
+  month        Int
+  visitorCount Int
+  source       String     @default("Kültür ve Turizm Bakanlığı")
+  lastUpdated  DateTime   @default(now())
+
+  @@unique([attractionId, year, month])
+  @@index([attractionId, year])
+}
+
+// ── Phase 5 ── Users & Favorites ──────────────────────────────────────────
+
+enum UserRole {
+  USER
+  EDITOR
+  REVIEWER
+  ADMIN
+}
+
+model User {
+  id                String     @id @default(cuid())
+  externalId        String?    @unique // Clerk user ID, or empty for mock auth
+  email             String     @unique
+  passwordHash      String? // mock provider only
+  displayName       String?
+  avatarUrl         String?
+  locale            String     @default("tr")
+  role              UserRole   @default(USER)
+  emailVerifiedAt   DateTime?
+  consentVersion    String?
+  consentAt         DateTime?
+  consentIp         String?
+  consentUserAgent  String?
+  marketingOptIn    Boolean    @default(false)
+  premiumUntil      DateTime?
+  deletedAt         DateTime?
+  hardDeleteAt      DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  reviews     Review[]
+  favorites   Favorite[]
+  itineraries Itinerary[]
+  pushTokens  PushToken[]
+  preferences UserPreference?
+  conciergeBudget ConciergeBudget?
+  conciergeMessages ConciergeMessage[]
+  affiliateClicks AffiliateClick[]
+  apiKeys     ApiKey[]
+}
+
+model Favorite {
+  userId       String
+  attractionId String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@id([userId, attractionId])
+  @@index([userId])
+}
+
+model PushToken {
+  id          String   @id @default(cuid())
+  userId      String
+  token       String   @unique
+  platform    String // ios, android, web
+  deviceType  String?
+  locale      String   @default("tr")
+  timezone    String?
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ── Phase 4 ── Reviews ────────────────────────────────────────────────────
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  HIDDEN
+}
+
+enum ReactionType {
+  HELPFUL
+  REPORT
+}
+
+model Review {
+  id                  String        @id @default(cuid())
+  attractionId        String
+  attraction          Attraction    @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  userId              String?
+  user                User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  authorDisplayName   String? // copy of user.displayName at submission time
+  rating              Int
+  title               String?
+  body                String
+  locale              String        @default("tr")
+  helpfulCount        Int           @default(0)
+  status              ReviewStatus  @default(PENDING)
+  autoModerationFlags String? // JSON
+  reviewerNotes       String?
+  publishedAt         DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  media     ReviewMedia[]
+  reactions ReviewReaction[]
+
+  @@unique([attractionId, userId])
+  @@index([attractionId, status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model ReviewMedia {
+  id        String   @id @default(cuid())
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  url       String
+  variants  String? // JSON
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ReviewReaction {
+  id        String       @id @default(cuid())
+  reviewId  String
+  review    Review       @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId    String
+  type      ReactionType
+  reason    String?
+  createdAt DateTime     @default(now())
+
+  @@unique([reviewId, userId, type])
+}
+
+// ── Phase 7 ── Nearby ─────────────────────────────────────────────────────
+
+enum NearbyType {
+  HOTEL
+  RESTAURANT
+}
+
+model NearbyPlace {
+  id           String      @id @default(cuid())
+  attractionId String
+  attraction   Attraction  @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  type         NearbyType
+  providerName String
+  externalId   String
+  name         String
+  lat          Float
+  lng          Float
+  rating       Float?
+  priceLevel   Int?
+  distanceM    Int
+  photoUrl     String?
+  externalUrl  String
+  metadata     String? // JSON
+  fetchedAt    DateTime    @default(now())
+  expiresAt    DateTime
+
+  @@unique([providerName, externalId])
+  @@index([attractionId, type])
+}
+
+model AffiliateClick {
+  id           String   @id @default(cuid())
+  placeId      String
+  attractionId String?
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  locale       String
+  source       String?
+  clientIp     String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([placeId, createdAt])
+  @@index([attractionId, createdAt])
+}
+
+// ── Phase 9 ── Itineraries ────────────────────────────────────────────────
+
+model Itinerary {
+  id          String          @id @default(cuid())
+  userId      String?
+  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  title       String
+  description String?
+  startDate   DateTime?
+  isPublic    Boolean         @default(false)
+  shareToken  String          @unique @default(cuid())
+  themes      String? // JSON tags
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  days        ItineraryDay[]
+
+  @@index([userId, updatedAt])
+}
+
+model ItineraryDay {
+  id          String          @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary       @relation(fields: [itineraryId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  date        DateTime?
+  notes       String?
+  stops       ItineraryStop[]
+
+  @@unique([itineraryId, dayNumber])
+}
+
+model ItineraryStop {
+  id                  String       @id @default(cuid())
+  itineraryDayId      String
+  day                 ItineraryDay @relation(fields: [itineraryDayId], references: [id], onDelete: Cascade)
+  attractionId        String
+  attraction          Attraction   @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  sortOrder           Int
+  plannedArrivalTime  String?
+  plannedDurationMin  Int?
+  notes               String?
+
+  @@index([itineraryDayId, sortOrder])
+}
+
+// ── Phase 10 ── AI Concierge ──────────────────────────────────────────────
+
+model AttractionEmbedding {
+  id           String     @id @default(cuid())
+  attractionId String
+  attraction   Attraction @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  locale       String
+  embedding    String // JSON-encoded float array (Postgres → pgvector)
+  contentHash  String
+  updatedAt    DateTime   @default(now())
+
+  @@unique([attractionId, locale])
+  @@index([locale])
+}
+
+model ConciergeBudget {
+  userId        String   @id
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  windowStart   DateTime @default(now())
+  tokensUsed    Int      @default(0)
+  messageCount  Int      @default(0)
+}
+
+model ConciergeMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      String // user|assistant|tool
+  content   String
+  citations String? // JSON
+  tokens    Int?
+  createdAt DateTime @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([userId, createdAt])
+}
+
+// ── Phase 11 ── Personalization ───────────────────────────────────────────
+
+model UserPreference {
+  userId            String   @id
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  themeInterests    String? // JSON array of category codes
+  preferredRegions  String? // JSON array
+  budgetTier        String? // BUDGET|MID|LUXURY
+  travelStyle       String? // FAST|RELAXED|BALANCED
+  groupType         String? // SOLO|COUPLE|FAMILY|FRIENDS
+  updatedAt         DateTime @default(now())
+}
+
+// ── Phase 12 ── Events ────────────────────────────────────────────────────
+
+enum EventType {
+  FESTIVAL
+  EXHIBITION
+  CLOSURE
+  CONCERT
+  RAMADAN_HOURS
+  WEATHER_ALERT
+}
+
+model Event {
+  id           String     @id @default(cuid())
+  attractionId String?
+  attraction   Attraction? @relation(fields: [attractionId], references: [id], onDelete: Cascade)
+  type         EventType
+  titleTr      String
+  titleEn      String
+  bodyTr       String
+  bodyEn       String
+  startsAt     DateTime
+  endsAt       DateTime?
+  isPublished  Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([attractionId, startsAt])
+  @@index([type, startsAt])
+}
+
+// ── Phase 15 ── Monetization ──────────────────────────────────────────────
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  EXPIRED
+}
+
+model Subscription {
+  id        String              @id @default(cuid())
+  userId    String              @unique
+  plan      String // 'turkiye_plus_monthly' | 'turkiye_plus_yearly'
+  status    SubscriptionStatus  @default(ACTIVE)
+  provider  String // stripe|iyzico|mock
+  externalId String?
+  startedAt DateTime            @default(now())
+  renewsAt  DateTime?
+  canceledAt DateTime?
+  metadata  String?
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  keyHash   String   @unique
+  prefix    String
+  scope     String // 'read'|'read_write'
+  rateLimit Int      @default(60)
+  revokedAt DateTime?
+  lastUsedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model ApiKeyUsage {
+  id        String   @id @default(cuid())
+  keyId     String
+  endpoint  String
+  count     Int      @default(0)
+  windowStart DateTime
+  createdAt DateTime @default(now())
+
+  @@index([keyId, windowStart])
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignore": [
+      "node_modules",
+      ".next",
+      "dist",
+      "build",
+      "coverage",
+      "playwright-report",
+      "test-results",
+      "prisma/migrations",
+      "src/components/ui/**"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "trailingCommas": "all",
+      "semicolons": "always"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noConsoleLog": "warn",
+        "noArrayIndexKey": "warn"
+      },
+      "style": {
+        "useImportType": "error",
+        "useExportType": "error",
+        "noNonNullAssertion": "warn"
+      },
+      "correctness": {
+        "noUnusedVariables": "warn",
+        "noUnusedImports": "error"
+      },
+      "complexity": {
+        "noBannedTypes": "error",
+        "useArrowFunction": "off"
+      },
+      "a11y": {
+        "useAltText": "error",
+        "useAnchorContent": "error",
+        "useButtonType": "error",
+        "useKeyWithClickEvents": "warn"
+      }
+    }
+  },
+  "organizeImports": {
+    "enabled": true
+  }
+}
