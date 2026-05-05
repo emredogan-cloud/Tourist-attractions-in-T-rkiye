@@ -6,12 +6,13 @@
 
 ## Current Phase
 
-**Phase 2 — Web Discovery Experience (frontend)** (next)
+**Phase 3 — Search & Discovery (Meilisearch)** (next)
 
 ## Completed Phases
 
 - **Phase 0 — Foundation & Developer Infrastructure** ✅ — Next.js 15 strict TS scaffold, Tailwind+shadcn-style tokens, Biome, Vitest, Playwright, Prisma full schema for all 16 phases (sqlite local / postgres prod), pino logger, zod-validated config, AppError hierarchy, RFC 7807 problem-detail responses, rate-limit util, next-intl tr/en, locale-aware routing, sitemap+robots+hreflang, cookie consent banner gating analytics, KVKK/GDPR/Terms/Cookies pages, GitHub Actions (CI + preview + release + dependabot + CodeQL), docker-compose (Postgres+PostGIS+Redis+Meilisearch).
-- **Phase 1 — Core Attraction Catalog (backend & data)** ✅ — Attractions service with locale-aware translation pickup, bbox/near filters, haversine sort, cursor pagination, related-nearby. REST endpoints `/api/v1/attractions`, `/:slug`, `/nearby`, `/map`, `/categories`, `/regions`, `/openapi.json` — all with `Cache-Control` + ETag where appropriate, problem-detail errors, zod-validated query schemas. 8 hand-curated bilingual attractions seeded (Ayasofya, Kapadokya, Pamukkale, Efes, Topkapı, Sumela, Göbekli Tepe, Nemrut Dağı) with media, hours, pricing, visitor stats. data-attribution.md catalogs every photo's CC license. 31 unit + integration tests pass.
+- **Phase 1 — Core Attraction Catalog (backend & data)** ✅ — Attractions service with locale-aware translation pickup, bbox/near filters, haversine sort, cursor pagination, related-nearby. REST endpoints `/api/v1/attractions`, `/:slug`, `/nearby`, `/map`, `/categories`, `/regions`, `/openapi.json` — all with `Cache-Control` + ETag where appropriate, problem-detail errors, zod-validated query schemas. 8 hand-curated bilingual attractions seeded (Ayasofya, Kapadokya, Pamukkale, Efes, Topkapı, Sumela, Göbekli Tepe, Nemrut Dağı) with media, hours, pricing, visitor stats. data-attribution.md catalogs every photo's CC license.
+- **Phase 2 — Web Discovery Experience (frontend)** ✅ — Localized homepage with hero + featured attractions + categories grid + regions grid, all wired to real DB. `/[locale]/attractions` listing with category/region/free/UNESCO filters, sort (popular, rating, newest), responsive grid. `/[locale]/attractions/[slug]` detail page with hero gallery (clickable lightbox with EXIF/license credit), bilingual breadcrumbs, JSON-LD `TouristAttraction` schema, sticky sidebar with opening hours (with season toggle), pricing table with TRY/USD/EUR currency switcher, share button, multi-platform Directions deep links (Google/Apple/Yandex/Copy), nearby grid. `/[locale]/regions` + `/regions/[code]` + `/categories` + `/categories/[slug]` + `/search` + `/map` (MapLibre + Supercluster, OpenFreeMap default). UI primitives (Button, Card, Badge) and shared components (AttractionCard, AttractionGrid). Sitemap now enumerates published attractions in every locale with proper hreflang. ISR `revalidate: 3600`. CSP-compliant. WCAG-ready.
 
 ## Architecture Snapshot
 
@@ -51,6 +52,14 @@
 | API helpers | locale parsing, zod query parsing, bbox/near schema | `src/lib/api-helpers.ts` |
 | REST API v1 | `/attractions`, `/:slug`, `/nearby`, `/map`, `/categories`, `/regions`, `/openapi.json` | `src/app/api/v1/*` |
 | Seed data | 8 curated bilingual attractions with media, hours, pricing, visitor stats | `prisma/seed.ts` |
+| UI primitives | Button (CVA-variants), Card, Badge | `src/components/ui/*` |
+| AttractionCard / Grid | Reusable listings with locale-aware labels | `src/components/attraction-{card,grid}.tsx` |
+| Detail components | Gallery (lightbox), PricingTable (FX-aware), OperatingHours (seasonal), DirectionsButton, ShareButton | `src/components/{gallery,pricing-table,operating-hours,directions-button,share-button}.tsx` |
+| Map | MapLibre + Supercluster, OpenFreeMap default + Mapbox optional, side-card on marker click | `src/components/map-{view,inner}.tsx`, `src/app/[locale]/map/page.tsx` |
+| Pages | Home, /attractions, /attractions/[slug], /regions, /regions/[code], /categories, /categories/[slug], /search, /map | `src/app/[locale]/*` |
+| FX rates | Static mid-range TRY↔USD/EUR/GBP for currency switcher | `src/lib/format.ts` |
+| JSON-LD | `TouristAttraction` schema on detail pages | `src/components/json-ld.tsx` |
+| Sitemap | Static + per-locale attraction urls with hreflang | `src/app/sitemap.ts` |
 
 ## API Integrations
 

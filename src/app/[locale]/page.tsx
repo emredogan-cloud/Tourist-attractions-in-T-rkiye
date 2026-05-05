@@ -1,6 +1,13 @@
 import { getTranslations } from "next-intl/server";
+import { AttractionGrid } from "~/components/attraction-grid";
 import { GlobalSearch } from "~/components/global-search";
+import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
+import {
+  listAttractions,
+  listCategories,
+  listRegionsWithProvinces,
+} from "~/server/services/attractions";
 
 export const revalidate = 3600;
 
@@ -9,17 +16,26 @@ export default async function HomePage({
 }: {
   params: Promise<{ locale: string }>;
 }) {
-  await params; // ensures locale segment is consumed
+  const { locale: localeParam } = await params;
+  const locale: Locale = isLocale(localeParam) ? localeParam : "tr";
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
+  const tc = await getTranslations("categories");
+
+  const [{ items: featured }, categories, regions] = await Promise.all([
+    listAttractions({ locale, limit: 8, sort: "popular" }),
+    listCategories(locale),
+    listRegionsWithProvinces(locale),
+  ]);
+
   return (
-    <div className="space-y-12 pb-16">
+    <div className="space-y-16 pb-16">
       <section className="relative overflow-hidden">
         <div
           className="absolute inset-0 bg-gradient-to-br from-turkiye-red/10 via-turkiye-gold/10 to-turkiye-sky/10"
           aria-hidden
         />
-        <div className="container relative grid items-center gap-8 py-16 md:grid-cols-2 md:py-24">
+        <div className="container relative grid items-center gap-10 py-16 md:grid-cols-[1.1fr,1fr] md:py-24">
           <div className="space-y-5">
             <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground">
               ✨ {t("popularSearches")}
@@ -47,62 +63,120 @@ export default async function HomePage({
                 {tn("map")}
               </Link>
             </div>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 pt-2 text-sm text-muted-foreground">
+              <span>{t("stats.attractions", { count: 500 })}</span>
+              <span>{t("stats.regions")}</span>
+              <span>{t("stats.provinces")}</span>
+              <span>{t("stats.languages")}</span>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              {
-                name: "Kapadokya",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Goreme_panorama.jpg/640px-Goreme_panorama.jpg",
-              },
-              {
-                name: "Ayasofya",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Ayasofya-Innenansicht.jpg/480px-Ayasofya-Innenansicht.jpg",
-              },
-              {
-                name: "Pamukkale",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Pamukkale_31.jpg/480px-Pamukkale_31.jpg",
-              },
-              {
-                name: "Efes",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Ephesus_Library.jpg/480px-Ephesus_Library.jpg",
-              },
-            ].map((p, i) => (
-              <div
-                key={p.name}
-                className="aspect-[4/5] overflow-hidden rounded-lg bg-muted"
+          <div className="relative grid grid-cols-2 gap-3">
+            {featured.slice(0, 4).map((a, i) => (
+              <Link
+                key={a.id}
+                href={`/attractions/${a.slug}`}
+                className="group relative aspect-[4/5] overflow-hidden rounded-xl bg-muted shadow-sm transition hover:shadow-lg"
                 style={{ transform: `translateY(${(i % 2) * 24}px)` }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.img}
-                  alt={p.name}
-                  className="h-full w-full object-cover"
-                  loading={i < 2 ? "eager" : "lazy"}
-                />
-              </div>
+                {a.heroImage && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={a.heroImage.url}
+                    alt={a.heroImage.alt}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    loading={i < 2 ? "eager" : "lazy"}
+                  />
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+                  <p className="text-xs font-medium uppercase tracking-wide opacity-80">
+                    {a.province.name}
+                  </p>
+                  <h3 className="line-clamp-2 font-display text-base font-semibold">{a.name}</h3>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="container space-y-4">
+      <section className="container space-y-6">
         <div className="flex items-end justify-between">
           <div>
             <h2 className="font-display text-2xl font-semibold">{t("featured")}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t("stats.attractions", { count: 50 })} · {t("stats.regions")} ·{" "}
-              {t("stats.languages")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("heroSubtitle")}</p>
           </div>
           <Link href="/attractions" className="text-sm text-primary hover:underline">
-            {t("popularSearches")} →
+            {tn("attractions")} →
           </Link>
         </div>
-        <p className="text-sm text-muted-foreground">
-          {/* This grid is filled in by Phase 2 with real attractions. */}
-          {tn("attractions")}
-        </p>
+        <AttractionGrid attractions={featured} />
+      </section>
+
+      <section className="container space-y-6">
+        <div>
+          <h2 className="font-display text-2xl font-semibold">{t("exploreByCategory")}</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+          {categories.map((c) => (
+            <Link
+              key={c.code}
+              href={`/categories/${c.slug}`}
+              className="group flex flex-col items-center gap-1 rounded-xl border border-border bg-card p-4 text-center transition hover:border-primary hover:bg-secondary/40"
+            >
+              <span className="text-2xl" aria-hidden>
+                {emojiForCategory(c.code)}
+              </span>
+              <span className="text-sm font-medium group-hover:text-primary">
+                {tc(c.code as never)}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="container space-y-6">
+        <div>
+          <h2 className="font-display text-2xl font-semibold">{t("exploreByRegion")}</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {regions.map((r) => (
+            <Link
+              key={r.code}
+              href={`/regions/${r.code.toLowerCase()}`}
+              className="group rounded-xl border border-border bg-card p-5 transition hover:border-primary hover:bg-secondary/40"
+            >
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                {r.provinces.length} il
+              </p>
+              <h3 className="mt-1 font-display text-lg font-semibold group-hover:text-primary">
+                {r.name}
+              </h3>
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                {r.provinces
+                  .slice(0, 5)
+                  .map((p) => p.name)
+                  .join(", ")}
+              </p>
+            </Link>
+          ))}
+        </div>
       </section>
     </div>
   );
+}
+
+function emojiForCategory(code: string) {
+  const map: Record<string, string> = {
+    HISTORICAL: "🏛️",
+    NATURAL: "🏞️",
+    RELIGIOUS: "🕌",
+    CULTURAL: "🎭",
+    BEACH: "🏖️",
+    MUSEUM: "🖼️",
+    ARCHAEOLOGICAL: "🗿",
+    ADVENTURE: "🪂",
+    URBAN: "🏙️",
+    FOOD_DRINK: "🍽️",
+  };
+  return map[code] ?? "✦";
 }

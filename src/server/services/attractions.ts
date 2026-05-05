@@ -281,7 +281,8 @@ export async function listAttractions(query: ListAttractionsQuery): Promise<List
   let items = rows.slice(0, limit).map((row) => rowToListItem(row, query.locale));
 
   if (query.near) {
-    const center = { lat: query.near.lat, lng: query.near.lng };
+    const near = query.near;
+    const center = { lat: near.lat, lng: near.lng };
     items = items
       .map((it) => ({
         ...it,
@@ -289,7 +290,7 @@ export async function listAttractions(query: ListAttractionsQuery): Promise<List
           haversineKm({ lat: it.latitude, lng: it.longitude }, center) * 1000,
         ),
       }))
-      .filter((it) => (it.distanceMeters ?? 0) <= query.near!.radiusM)
+      .filter((it) => (it.distanceMeters ?? 0) <= near.radiusM)
       .sort((a, b) => (a.distanceMeters ?? 0) - (b.distanceMeters ?? 0));
   }
 
