@@ -3,16 +3,21 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AttractionGrid } from "~/components/attraction-grid";
 import { DirectionsButton } from "~/components/directions-button";
+import { FavoriteButton } from "~/components/favorite-button";
 import { Gallery } from "~/components/gallery";
 import { JsonLd } from "~/components/json-ld";
 import { OperatingHoursTable } from "~/components/operating-hours";
 import { PricingTable } from "~/components/pricing-table";
+import { ReviewsSection } from "~/components/reviews/reviews-section";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { NotFoundError, isAppError } from "~/lib/errors";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
+import { getCurrentSession } from "~/server/providers/auth";
 import { getAttractionBySlug, listAttractions } from "~/server/services/attractions";
+import { listReviews } from "~/server/services/reviews";
+import { isFavorite } from "~/server/services/users";
 
 export const revalidate = 3600;
 
@@ -73,6 +78,12 @@ export default async function AttractionDetailPage({
     if (isAppError(err) && err instanceof NotFoundError) notFound();
     throw err;
   }
+
+  const session = await getCurrentSession();
+  const [reviews, favorited] = await Promise.all([
+    listReviews({ attractionSlug: detail.slug, sort: "recent", limit: 10 }),
+    session ? isFavorite(session.user.id, detail.id) : Promise.resolve(false),
+  ]);
 
   const ld = {
     "@context": "https://schema.org",
@@ -143,6 +154,11 @@ export default async function AttractionDetailPage({
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <FavoriteButton
+              attractionId={detail.id}
+              initialFavorite={favorited}
+              isAuthed={!!session}
+            />
             <DirectionsButton lat={detail.latitude} lng={detail.longitude} name={detail.name} />
             <ShareButton
               url={`${process.env.APP_URL ?? "https://turkiye-tourism.app"}/${locale}/attractions/${detail.slug}`}
@@ -177,6 +193,33 @@ export default async function AttractionDetailPage({
                 />
               </Section>
             )}
+
+            <ReviewsSection
+              attractionId={detail.id}
+              attractionSlug={detail.slug}
+              initial={{
+                items: reviews.items.map((r) => ({
+                  id: r.id,
+                  rating: r.rating,
+                  title: r.title,
+                  body: r.body,
+                  helpfulCount: r.helpfulCount,
+                  status: r.status,
+                  authorDisplayName: r.authorDisplayName,
+                  user: r.user ?? null,
+                  createdAt: r.createdAt.toISOString(),
+                })),
+                total: reviews.total,
+                histogram: {
+                  "1": reviews.histogram[1],
+                  "2": reviews.histogram[2],
+                  "3": reviews.histogram[3],
+                  "4": reviews.histogram[4],
+                  "5": reviews.histogram[5],
+                },
+              }}
+              user={session?.user ?? null}
+            />
           </div>
 
           <aside className="space-y-6">
