@@ -3,9 +3,12 @@ import { Link } from "~/lib/i18n/routing";
 import { GlobalSearch } from "./global-search";
 import { LocaleSwitcher } from "./locale-switcher";
 import { ThemeToggle } from "./theme-toggle";
+import { UserMenu } from "./user-menu";
+import { getCurrentSession } from "~/server/providers/auth";
 
 export async function SiteHeader() {
   const t = await getTranslations("nav");
+  const session = await getCurrentSession();
   const items = [
     { href: "/attractions", label: t("attractions") },
     { href: "/regions", label: t("regions") },
@@ -46,12 +49,16 @@ export async function SiteHeader() {
           </div>
           <LocaleSwitcher />
           <ThemeToggle />
-          <Link
-            href="/sign-in"
-            className="hidden md:inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-secondary"
-          >
-            {t("signIn")}
-          </Link>
+          {session ? (
+            <UserMenu user={session.user} />
+          ) : (
+            <Link
+              href="/sign-in"
+              className="hidden md:inline-flex items-center rounded-md border border-input bg-background px-3 py-2 text-sm hover:bg-secondary"
+            >
+              {t("signIn")}
+            </Link>
+          )}
         </div>
       </div>
     </header>
