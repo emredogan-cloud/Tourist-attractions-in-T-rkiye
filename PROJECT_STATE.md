@@ -6,13 +6,14 @@
 
 ## Current Phase
 
-**Phase 3 — Search & Discovery (Meilisearch)** (next)
+**Phase 5 — User Accounts, Auth & Favorites** (in progress; scheduled before Phase 4 because Reviews depend on auth — see Decision Log)
 
 ## Completed Phases
 
 - **Phase 0 — Foundation & Developer Infrastructure** ✅ — Next.js 15 strict TS scaffold, Tailwind+shadcn-style tokens, Biome, Vitest, Playwright, Prisma full schema for all 16 phases (sqlite local / postgres prod), pino logger, zod-validated config, AppError hierarchy, RFC 7807 problem-detail responses, rate-limit util, next-intl tr/en, locale-aware routing, sitemap+robots+hreflang, cookie consent banner gating analytics, KVKK/GDPR/Terms/Cookies pages, GitHub Actions (CI + preview + release + dependabot + CodeQL), docker-compose (Postgres+PostGIS+Redis+Meilisearch).
 - **Phase 1 — Core Attraction Catalog (backend & data)** ✅ — Attractions service with locale-aware translation pickup, bbox/near filters, haversine sort, cursor pagination, related-nearby. REST endpoints `/api/v1/attractions`, `/:slug`, `/nearby`, `/map`, `/categories`, `/regions`, `/openapi.json` — all with `Cache-Control` + ETag where appropriate, problem-detail errors, zod-validated query schemas. 8 hand-curated bilingual attractions seeded (Ayasofya, Kapadokya, Pamukkale, Efes, Topkapı, Sumela, Göbekli Tepe, Nemrut Dağı) with media, hours, pricing, visitor stats. data-attribution.md catalogs every photo's CC license.
 - **Phase 2 — Web Discovery Experience (frontend)** ✅ — Localized homepage with hero + featured attractions + categories grid + regions grid, all wired to real DB. `/[locale]/attractions` listing with category/region/free/UNESCO filters, sort (popular, rating, newest), responsive grid. `/[locale]/attractions/[slug]` detail page with hero gallery (clickable lightbox with EXIF/license credit), bilingual breadcrumbs, JSON-LD `TouristAttraction` schema, sticky sidebar with opening hours (with season toggle), pricing table with TRY/USD/EUR currency switcher, share button, multi-platform Directions deep links (Google/Apple/Yandex/Copy), nearby grid. `/[locale]/regions` + `/regions/[code]` + `/categories` + `/categories/[slug]` + `/search` + `/map` (MapLibre + Supercluster, OpenFreeMap default). UI primitives (Button, Card, Badge) and shared components (AttractionCard, AttractionGrid). Sitemap now enumerates published attractions in every locale with proper hreflang. ISR `revalidate: 3600`. CSP-compliant. WCAG-ready.
+- **Phase 3 — Search & Discovery (Meilisearch)** ✅ — `SearchProvider` interface with two implementations: `MeilisearchProvider` (per-locale `attractions_{tr,en}` indexes, configured ranking rules, synonyms, stop-words, typo tolerance) and `DbSearchProvider` (Turkish-aware diacritic-insensitive in-memory ranking). Auto-selection: prefer Meili when healthy at boot, fall back to DB. `/api/v1/search` and `/api/v1/search/suggest` endpoints with rate limits (60/min and 120/min per IP). `<GlobalSearch>` component now has 200ms debounced autosuggest dropdown, recent searches in localStorage, ARIA combobox with keyboard navigation. `/[locale]/search` page with faceted filters (category, region) wired to provider facets. `pnpm search:reindex` CLI for full reindex. 8 search-provider tests pass.
 
 ## Architecture Snapshot
 
@@ -88,6 +89,7 @@
 | 2026-05-05 | All external providers (auth, AI, hotels, restaurants, email) behind interfaces with mock implementations | Lets every phase be testable end-to-end without real API keys | Discipline to keep interfaces thin and not leak provider quirks |
 | 2026-05-05 | Biome over ESLint+Prettier | 25× faster, single config, official Next 15 support | Smaller community plugin ecosystem |
 | 2026-05-05 | next-intl over react-intl / i18next | First-class App Router integration, server-component-friendly | Different API from i18next on mobile — wrap in `packages/i18n` to share strings |
+| 2026-05-05 | Phase 5 (Auth) executed before Phase 4 (Reviews) | The roadmap's own dependency analysis acknowledges Reviews requires Auth. Following numeric order would force a placeholder anonymous-review path that Phase 5 would later rip out. Recommended order from §5 Implementation Roadmap explicitly says Phase 5 → Phase 4. | Documented here so the deviation is visible. |
 
 ## Known Issues / Follow-ups
 
