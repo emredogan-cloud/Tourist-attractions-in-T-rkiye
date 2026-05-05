@@ -6,11 +6,12 @@
 
 ## Current Phase
 
-**Phase 1 — Core Attraction Catalog** (next)
+**Phase 2 — Web Discovery Experience (frontend)** (next)
 
 ## Completed Phases
 
-- **Phase 0 — Foundation & Developer Infrastructure** ✅ — Next.js 15 strict TS scaffold, Tailwind+shadcn-style tokens, Biome, Vitest, Playwright, Prisma full schema for all 16 phases (sqlite local / postgres prod), pino logger, zod-validated config, AppError hierarchy, RFC 7807 problem-detail responses, rate-limit util, next-intl tr/en, locale-aware routing, sitemap+robots+hreflang, cookie consent banner gating analytics, KVKK/GDPR/Terms/Cookies pages, GitHub Actions (CI + preview + release + dependabot + CodeQL), docker-compose (Postgres+PostGIS+Redis+Meilisearch). 12 unit tests pass; typecheck clean; build clean.
+- **Phase 0 — Foundation & Developer Infrastructure** ✅ — Next.js 15 strict TS scaffold, Tailwind+shadcn-style tokens, Biome, Vitest, Playwright, Prisma full schema for all 16 phases (sqlite local / postgres prod), pino logger, zod-validated config, AppError hierarchy, RFC 7807 problem-detail responses, rate-limit util, next-intl tr/en, locale-aware routing, sitemap+robots+hreflang, cookie consent banner gating analytics, KVKK/GDPR/Terms/Cookies pages, GitHub Actions (CI + preview + release + dependabot + CodeQL), docker-compose (Postgres+PostGIS+Redis+Meilisearch).
+- **Phase 1 — Core Attraction Catalog (backend & data)** ✅ — Attractions service with locale-aware translation pickup, bbox/near filters, haversine sort, cursor pagination, related-nearby. REST endpoints `/api/v1/attractions`, `/:slug`, `/nearby`, `/map`, `/categories`, `/regions`, `/openapi.json` — all with `Cache-Control` + ETag where appropriate, problem-detail errors, zod-validated query schemas. 8 hand-curated bilingual attractions seeded (Ayasofya, Kapadokya, Pamukkale, Efes, Topkapı, Sumela, Göbekli Tepe, Nemrut Dağı) with media, hours, pricing, visitor stats. data-attribution.md catalogs every photo's CC license. 31 unit + integration tests pass.
 
 ## Architecture Snapshot
 
@@ -46,6 +47,10 @@
 | Health | `/api/healthz` and `/api/readyz` (DB ping) | `src/app/api/{healthz,readyz}/route.ts` |
 | SEO | sitemap.ts + robots.ts with hreflang alternates | `src/app/sitemap.ts`, `robots.ts` |
 | Legal pages | KVKK, GDPR Privacy, Terms, Cookies | `src/app/[locale]/legal/*` |
+| Attractions service | listing, detail, nearby, map markers, locale-aware translation pickup | `src/server/services/attractions.ts` |
+| API helpers | locale parsing, zod query parsing, bbox/near schema | `src/lib/api-helpers.ts` |
+| REST API v1 | `/attractions`, `/:slug`, `/nearby`, `/map`, `/categories`, `/regions`, `/openapi.json` | `src/app/api/v1/*` |
+| Seed data | 8 curated bilingual attractions with media, hours, pricing, visitor stats | `prisma/seed.ts` |
 
 ## API Integrations
 
@@ -77,7 +82,9 @@
 
 ## Known Issues / Follow-ups
 
-_None yet._
+- PayloadCMS admin deferred to a later phase. Per Decision Log, content editing in MVP can be done via direct DB seed scripts; a JSON-form admin lands when content scale demands it.
+- R2 object storage abstracted but local-FS in dev. Real bucket is a one-line env swap.
+- PostGIS GIST index is provided in the schema but only takes effect when DATABASE_PROVIDER=postgresql.
 
 ## Phase Pointer
 
