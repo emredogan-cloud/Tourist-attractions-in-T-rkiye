@@ -3,13 +3,15 @@ import { AttractionGrid } from "~/components/attraction-grid";
 import { GlobalSearch } from "~/components/global-search";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
+import { getCurrentSession } from "~/server/providers/auth";
 import {
   listAttractions,
   listCategories,
   listRegionsWithProvinces,
 } from "~/server/services/attractions";
+import { recommendForUser } from "~/server/services/recommendations";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage({
   params,
@@ -21,11 +23,15 @@ export default async function HomePage({
   const t = await getTranslations("home");
   const tn = await getTranslations("nav");
   const tc = await getTranslations("categories");
+  const session = await getCurrentSession();
 
-  const [{ items: featured }, categories, regions] = await Promise.all([
+  const [{ items: featured }, categories, regions, recommended] = await Promise.all([
     listAttractions({ locale, limit: 8, sort: "popular" }),
     listCategories(locale),
     listRegionsWithProvinces(locale),
+    session
+      ? recommendForUser({ userId: session.user.id, locale, limit: 4 })
+      : Promise.resolve([]),
   ]);
 
   return (
@@ -98,6 +104,17 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+
+      {recommended.length > 0 && (
+        <section className="container space-y-6">
+          <div>
+            <h2 className="font-display text-2xl font-semibold">
+              {locale === "tr" ? "Sizin için önerilenler" : "Recommended for you"}
+            </h2>
+          </div>
+          <AttractionGrid attractions={recommended} />
+        </section>
+      )}
 
       <section className="container space-y-6">
         <div className="flex items-end justify-between">
