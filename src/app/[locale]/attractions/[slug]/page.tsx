@@ -8,6 +8,7 @@ import { Gallery } from "~/components/gallery";
 import { JsonLd } from "~/components/json-ld";
 import { OperatingHoursTable } from "~/components/operating-hours";
 import { PricingTable } from "~/components/pricing-table";
+import { NearbySection } from "~/components/nearby-section";
 import { ReviewsSection } from "~/components/reviews/reviews-section";
 import { VisitorStatsChart } from "~/components/visitor-stats-chart";
 import { ShareButton } from "~/components/share-button";
@@ -202,6 +203,8 @@ export default async function AttractionDetailPage({
                 <VisitorStatsChart points={stats.points} source={stats.source} />
               </Section>
             )}
+
+            <NearbySection slug={detail.slug} />
 
             <ReviewsSection
               attractionId={detail.id}
