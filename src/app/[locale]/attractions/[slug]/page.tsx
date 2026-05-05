@@ -9,6 +9,7 @@ import { JsonLd } from "~/components/json-ld";
 import { OperatingHoursTable } from "~/components/operating-hours";
 import { PricingTable } from "~/components/pricing-table";
 import { ReviewsSection } from "~/components/reviews/reviews-section";
+import { VisitorStatsChart } from "~/components/visitor-stats-chart";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { NotFoundError, isAppError } from "~/lib/errors";
@@ -17,6 +18,7 @@ import { Link } from "~/lib/i18n/routing";
 import { getCurrentSession } from "~/server/providers/auth";
 import { getAttractionBySlug, listAttractions } from "~/server/services/attractions";
 import { listReviews } from "~/server/services/reviews";
+import { getVisitorStats } from "~/server/services/visitor-stats";
 import { isFavorite } from "~/server/services/users";
 
 export const revalidate = 3600;
@@ -80,9 +82,10 @@ export default async function AttractionDetailPage({
   }
 
   const session = await getCurrentSession();
-  const [reviews, favorited] = await Promise.all([
+  const [reviews, favorited, stats] = await Promise.all([
     listReviews({ attractionSlug: detail.slug, sort: "recent", limit: 10 }),
     session ? isFavorite(session.user.id, detail.id) : Promise.resolve(false),
+    getVisitorStats({ slug: detail.slug }).catch(() => ({ source: "", points: [], annual: [] })),
   ]);
 
   const ld = {
@@ -191,6 +194,12 @@ export default async function AttractionDetailPage({
                   attractions={detail.related}
                   className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                 />
+              </Section>
+            )}
+
+            {stats.points.length > 0 && (
+              <Section title={t("visitorStats")}>
+                <VisitorStatsChart points={stats.points} source={stats.source} />
               </Section>
             )}
 
