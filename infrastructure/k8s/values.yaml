@@ -1,0 +1,59 @@
+# Helm values for Türkiye Tourism (post Cloud-Run scale-out).
+# Use only when ECS/Cloud Run autoscaling has hit its ceiling and the team
+# decides to take on Kubernetes operational overhead.
+
+image:
+  repository: ghcr.io/emredogan-cloud/turkiye-web
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 6
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: 2
+    memory: 2Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 6
+  maxReplicas: 60
+  targetCPU: 70
+  targetMemory: 80
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: turkiye-tourism.app
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts: [turkiye-tourism.app]
+      secretName: turkiye-tls
+
+env:
+  NODE_ENV: production
+  LOG_LEVEL: info
+
+envFrom:
+  - secretRef:
+      name: turkiye-secrets
+
+readinessProbe:
+  httpGet: { path: /api/readyz, port: 3000 }
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+livenessProbe:
+  httpGet: { path: /api/healthz, port: 3000 }
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+podDisruptionBudget:
+  minAvailable: 2
