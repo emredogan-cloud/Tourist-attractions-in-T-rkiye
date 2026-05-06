@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { type Locale, isLocale } from "~/lib/i18n/config";
-import { getByShareToken } from "~/server/services/itineraries";
 import { Link } from "~/lib/i18n/routing";
+import { getByShareToken } from "~/server/services/itineraries";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +12,7 @@ export default async function SharedItineraryPage({
 }) {
   const { locale: localeParam, token } = await params;
   const locale: Locale = isLocale(localeParam) ? localeParam : "tr";
-  let it;
+  let it: Awaited<ReturnType<typeof getByShareToken>>;
   try {
     it = await getByShareToken(token);
   } catch {

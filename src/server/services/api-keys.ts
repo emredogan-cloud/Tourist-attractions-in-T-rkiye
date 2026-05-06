@@ -1,7 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
-import type { Prisma } from "@prisma/client";
-import { prisma } from "~/server/db/client";
 import { AuthError, ConflictError, NotFoundError, RateLimitError } from "~/lib/errors";
+import { prisma } from "~/server/db/client";
 
 const PREFIX = "tt_pk_";
 
@@ -87,7 +86,7 @@ export async function meterUsage(args: { keyId: string; endpoint: string; rateLi
     update: { count: { increment: 1 } },
   });
   if (updated.count > args.rateLimit) {
-    const reset = Math.ceil(((windowStart.getTime() + 60 * 60 * 1000) - Date.now()) / 1000);
+    const reset = Math.ceil((windowStart.getTime() + 60 * 60 * 1000 - Date.now()) / 1000);
     throw new RateLimitError(reset);
   }
 }

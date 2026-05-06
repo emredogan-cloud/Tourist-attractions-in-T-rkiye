@@ -73,7 +73,12 @@
     "all": "Все места",
     "filters": "Фильтры",
     "sortBy": "Сортировка",
-    "sort": { "popular": "Популярные", "ratingDesc": "По рейтингу (выше)", "ratingAsc": "По рейтингу (ниже)", "newest": "Новые" },
+    "sort": {
+      "popular": "Популярные",
+      "ratingDesc": "По рейтингу (выше)",
+      "ratingAsc": "По рейтингу (ниже)",
+      "newest": "Новые"
+    },
     "filterCategory": "Категория",
     "filterRegion": "Регион",
     "filterProvince": "Провинция",
@@ -95,9 +100,24 @@
     "unfavorite": "Из избранного",
     "addToItinerary": "В маршрут",
     "shareWithFriends": "Поделиться",
-    "audience": { "ADULT": "Взрослый", "STUDENT": "Студент", "CHILD": "Ребёнок", "SENIOR": "Пенсионер", "FOREIGN_ADULT": "Иностранец", "FOREIGN_STUDENT": "Иностранный студент" },
+    "audience": {
+      "ADULT": "Взрослый",
+      "STUDENT": "Студент",
+      "CHILD": "Ребёнок",
+      "SENIOR": "Пенсионер",
+      "FOREIGN_ADULT": "Иностранец",
+      "FOREIGN_STUDENT": "Иностранный студент"
+    },
     "season": { "SUMMER": "Лето", "WINTER": "Зима", "ALL_YEAR": "Круглый год" },
-    "days": { "0": "Воскресенье", "1": "Понедельник", "2": "Вторник", "3": "Среда", "4": "Четверг", "5": "Пятница", "6": "Суббота" },
+    "days": {
+      "0": "Воскресенье",
+      "1": "Понедельник",
+      "2": "Вторник",
+      "3": "Среда",
+      "4": "Четверг",
+      "5": "Пятница",
+      "6": "Суббота"
+    },
     "directionsTitle": "Получить маршрут",
     "directionsGoogle": "Google Maps",
     "directionsApple": "Apple Maps",
@@ -127,7 +147,12 @@
       "characterCount": "{current}/{max} символов",
       "pendingMessage": "Отзыв на модерации. Мы пришлём письмо при одобрении."
     },
-    "sort": { "recent": "Свежие", "helpful": "Полезные", "ratingHigh": "Высокие оценки", "ratingLow": "Низкие оценки" },
+    "sort": {
+      "recent": "Свежие",
+      "helpful": "Полезные",
+      "ratingHigh": "Высокие оценки",
+      "ratingLow": "Низкие оценки"
+    },
     "helpful": "Полезно",
     "report": "Жалоба",
     "reportTitle": "Пожаловаться на отзыв",
@@ -192,8 +217,20 @@
     "totalDuration": "Общая длительность",
     "totalDistance": "Общее расстояние"
   },
-  "favorites": { "title": "Избранное", "empty": "В избранном пока ничего нет.", "browseAttractions": "Смотреть места" },
-  "events": { "title": "События и фестивали", "today": "Сегодня", "thisWeek": "На этой неделе", "thisMonth": "В этом месяце", "upcoming": "Предстоящие", "weatherToday": "Погода сегодня", "openingNow": "Открыто сейчас" },
+  "favorites": {
+    "title": "Избранное",
+    "empty": "В избранном пока ничего нет.",
+    "browseAttractions": "Смотреть места"
+  },
+  "events": {
+    "title": "События и фестивали",
+    "today": "Сегодня",
+    "thisWeek": "На этой неделе",
+    "thisMonth": "В этом месяце",
+    "upcoming": "Предстоящие",
+    "weatherToday": "Погода сегодня",
+    "openingNow": "Открыто сейчас"
+  },
   "nearby": {
     "title": "Гостиницы и рестораны рядом",
     "hotels": "Отели",

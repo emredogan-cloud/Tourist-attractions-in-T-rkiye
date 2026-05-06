@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { Locale } from "~/lib/i18n/config";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import type { Locale } from "~/lib/i18n/config";
 
 export function SignInForm({ locale }: { locale: Locale }) {
   const t = useTranslations("auth");
@@ -64,7 +64,7 @@ export function SignInForm({ locale }: { locale: Locale }) {
         </p>
       )}
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? t("signIn") + "…" : t("signIn")}
+        {pending ? `${t("signIn")}…` : t("signIn")}
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         <a href={`/${locale}/forgot-password`} className="hover:text-primary">

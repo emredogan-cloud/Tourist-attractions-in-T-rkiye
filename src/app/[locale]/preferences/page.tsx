@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { PreferencesForm } from "~/components/preferences-form";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { getCurrentSession } from "~/server/providers/auth";
 import { getPreferences } from "~/server/services/recommendations";
-import { PreferencesForm } from "~/components/preferences-form";
 
 export const dynamic = "force-dynamic";
 

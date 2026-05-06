@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -44,7 +44,10 @@ export function VisitorStatsChart({
       label: monthFormatter.format(new Date(p.year, p.month - 1, 1)),
       visitors: p.visitorCount,
     }));
-  const formatter = new Intl.NumberFormat(locale, { notation: "compact", maximumFractionDigits: 1 });
+  const formatter = new Intl.NumberFormat(locale, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
 
   return (
     <div className="space-y-2">
@@ -56,12 +59,11 @@ export function VisitorStatsChart({
               type="button"
               key={y}
               onClick={() => setYear(y)}
-              className={
-                "rounded-md border px-2 py-1 text-xs " +
-                (year === y
+              className={`rounded-md border px-2 py-1 text-xs ${
+                year === y
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card hover:bg-secondary")
-              }
+                  : "border-border bg-card hover:bg-secondary"
+              }`}
               aria-pressed={year === y}
             >
               {y}
@@ -80,7 +82,12 @@ export function VisitorStatsChart({
               formatter={(v) => formatter.format(v as number)}
             />
             <Legend />
-            <Bar dataKey="visitors" name={t("visitorStats")} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            <Bar
+              dataKey="visitors"
+              name={t("visitorStats")}
+              fill="hsl(var(--primary))"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -3,7 +3,7 @@ export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = "tr";
 
-export const mvpLocales: readonly Locale[] = ["tr", "en"] as const;
+export const mvpLocales: readonly Locale[] = ["tr", "en", "ar", "ru", "de"] as const;
 
 export const rtlLocales: ReadonlySet<Locale> = new Set<Locale>(["ar"]);
 

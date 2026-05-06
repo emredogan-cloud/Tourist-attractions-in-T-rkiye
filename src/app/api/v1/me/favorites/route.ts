@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { noStore, problem } from "~/lib/api-response";
 import { requireUser } from "~/server/providers/auth";
 import { listFavorites } from "~/server/services/users";

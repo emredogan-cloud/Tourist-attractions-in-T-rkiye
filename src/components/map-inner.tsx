@@ -107,51 +107,6 @@ export function MapInner({ markers, locale }: { markers: MapMarker[]; locale: Lo
     };
   }, [markers, cluster]);
 
-  function render() {
-    const map = mapRef.current;
-    if (!map) return;
-    const bounds = map.getBounds();
-    const zoom = Math.floor(map.getZoom());
-    const clusters = cluster.getClusters(
-      [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
-      zoom,
-    );
-    for (const m of markersRef.current) m.remove();
-    markersRef.current = [];
-
-    for (const c of clusters) {
-      const [lng, lat] = c.geometry.coordinates as [number, number];
-      const isCluster = !!(c.properties as Record<string, unknown>).cluster;
-      const el = document.createElement("button");
-      el.type = "button";
-      el.setAttribute("aria-label", isCluster ? "Cluster" : "Attraction");
-      el.setAttribute("data-marker", isCluster ? "cluster" : "single");
-      if (isCluster) {
-        const count = (c.properties as { point_count: number }).point_count;
-        el.className =
-          "grid place-content-center rounded-full bg-primary text-primary-foreground font-semibold shadow-lg";
-        el.style.width = `${28 + Math.min(count, 24)}px`;
-        el.style.height = `${28 + Math.min(count, 24)}px`;
-        el.textContent = String(count);
-        el.addEventListener("click", () => {
-          const z = cluster.getClusterExpansionZoom(
-            (c.properties as { cluster_id: number }).cluster_id,
-          );
-          map.flyTo({ center: [lng, lat], zoom: z });
-        });
-      } else {
-        const id = (c.properties as { id: string }).id;
-        const data = markers.find((mk) => mk.id === id);
-        el.className =
-          "grid h-7 w-7 place-content-center rounded-full bg-card text-foreground border border-primary shadow";
-        el.textContent = "★";
-        el.addEventListener("click", () => data && setSelected(data));
-      }
-      const marker = new maplibregl.Marker({ element: el }).setLngLat([lng, lat]).addTo(map);
-      markersRef.current.push(marker);
-    }
-  }
-
   return (
     <div className="relative h-full w-full">
       <div ref={containerRef} className="absolute inset-0" />

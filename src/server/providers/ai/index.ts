@@ -3,7 +3,13 @@ import { logger } from "~/lib/logger";
 import { MockAIProvider } from "./mock-provider";
 import type { AIProvider } from "./types";
 
-export type { AIProvider, ConciergeChunk, ConciergeMessage, ConciergeRequest, ItineraryDraft } from "./types";
+export type {
+  AIProvider,
+  ConciergeChunk,
+  ConciergeMessage,
+  ConciergeRequest,
+  ItineraryDraft,
+} from "./types";
 
 let cached: AIProvider | undefined;
 
@@ -15,9 +21,10 @@ export function getAIProvider(): AIProvider {
       // Lazy require keeps Anthropic SDK out of cold-start when not used.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { AnthropicAIProvider } = require("./anthropic-provider");
-      cached = new AnthropicAIProvider();
+      const provider: AIProvider = new AnthropicAIProvider();
+      cached = provider;
       logger.info({ model: config.ANTHROPIC_MODEL_DEFAULT }, "AI: using Anthropic Claude");
-      return cached!;
+      return provider;
     } catch (err) {
       logger.warn({ err }, "AI: Anthropic init failed — falling back to mock");
     }

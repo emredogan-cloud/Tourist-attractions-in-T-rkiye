@@ -7,8 +7,14 @@ import { getVisitorStats } from "~/server/services/visitor-stats";
 export const runtime = "nodejs";
 
 const Query = z.object({
-  from: z.string().regex(/^\d{4}-\d{2}$/).optional(),
-  to: z.string().regex(/^\d{4}-\d{2}$/).optional(),
+  from: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .optional(),
+  to: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/)
+    .optional(),
 });
 
 export async function GET(request: NextRequest, ctx: { params: Promise<{ slug: string }> }) {

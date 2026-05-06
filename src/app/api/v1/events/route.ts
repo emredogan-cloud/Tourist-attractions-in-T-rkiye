@@ -7,7 +7,9 @@ import { listEvents } from "~/server/services/events";
 export const runtime = "nodejs";
 
 const Query = z.object({
-  type: z.enum(["FESTIVAL", "EXHIBITION", "CLOSURE", "CONCERT", "RAMADAN_HOURS", "WEATHER_ALERT"]).optional(),
+  type: z
+    .enum(["FESTIVAL", "EXHIBITION", "CLOSURE", "CONCERT", "RAMADAN_HOURS", "WEATHER_ALERT"])
+    .optional(),
   attractionSlug: z.string().optional(),
   from: z.string().datetime().optional(),
   to: z.string().datetime().optional(),

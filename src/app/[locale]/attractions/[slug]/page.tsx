@@ -1,21 +1,21 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { AccessibilitySection } from "~/components/accessibility-section";
 import { AttractionGrid } from "~/components/attraction-grid";
 import { DirectionsButton } from "~/components/directions-button";
 import { FavoriteButton } from "~/components/favorite-button";
 import { Gallery } from "~/components/gallery";
 import { JsonLd } from "~/components/json-ld";
-import { OperatingHoursTable } from "~/components/operating-hours";
-import { PricingTable } from "~/components/pricing-table";
-import { AccessibilitySection } from "~/components/accessibility-section";
 import { NearbySection } from "~/components/nearby-section";
 import { OpenNowBadge } from "~/components/open-now-badge";
+import { OperatingHoursTable } from "~/components/operating-hours";
+import { PricingTable } from "~/components/pricing-table";
 import { ReviewsSection } from "~/components/reviews/reviews-section";
-import { VisitorStatsChart } from "~/components/visitor-stats-chart";
-import { WeatherWidget } from "~/components/weather-widget";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
+import { VisitorStatsChart } from "~/components/visitor-stats-chart";
+import { WeatherWidget } from "~/components/weather-widget";
 import { NotFoundError, isAppError } from "~/lib/errors";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
@@ -23,8 +23,8 @@ import { getCurrentSession } from "~/server/providers/auth";
 import { getAttractionBySlug, listAttractions } from "~/server/services/attractions";
 import { getCurrentClosures, isOpenNow } from "~/server/services/events";
 import { listReviews } from "~/server/services/reviews";
-import { getVisitorStats } from "~/server/services/visitor-stats";
 import { isFavorite } from "~/server/services/users";
+import { getVisitorStats } from "~/server/services/visitor-stats";
 
 export const revalidate = 3600;
 

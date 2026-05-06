@@ -1,9 +1,15 @@
 import type { Prisma } from "@prisma/client";
-import { prisma } from "~/server/db/client";
 import { NotFoundError, ValidationError } from "~/lib/errors";
 import type { Locale } from "~/lib/i18n/config";
+import { prisma } from "~/server/db/client";
 
-export type EventType = "FESTIVAL" | "EXHIBITION" | "CLOSURE" | "CONCERT" | "RAMADAN_HOURS" | "WEATHER_ALERT";
+export type EventType =
+  | "FESTIVAL"
+  | "EXHIBITION"
+  | "CLOSURE"
+  | "CONCERT"
+  | "RAMADAN_HOURS"
+  | "WEATHER_ALERT";
 
 const EVENT_INCLUDE = {
   attraction: {
@@ -40,7 +46,13 @@ export async function listEvents(args: {
     const horizon = new Date(Date.now() + 90 * 24 * 3600 * 1000);
     where.OR = [
       { endsAt: { gte: now } },
-      { AND: [{ endsAt: null }, { startsAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) } }, { startsAt: { lte: horizon } }] },
+      {
+        AND: [
+          { endsAt: null },
+          { startsAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) } },
+          { startsAt: { lte: horizon } },
+        ],
+      },
     ];
   }
   const rows = await prisma.event.findMany({
@@ -62,7 +74,8 @@ export async function createEvent(args: {
   endsAt?: Date | null;
   attractionId?: string;
 }) {
-  if (!args.titleTr.trim() || !args.titleEn.trim()) throw new ValidationError("Bilingual titles required");
+  if (!args.titleTr.trim() || !args.titleEn.trim())
+    throw new ValidationError("Bilingual titles required");
   if (args.endsAt && args.endsAt < args.startsAt) {
     throw new ValidationError("endsAt must be after startsAt");
   }
@@ -93,11 +106,9 @@ export async function getCurrentClosures(args: { attractionId?: string }) {
   });
 }
 
-function mapToDto(
-  row: Prisma.EventGetPayload<{ include: typeof EVENT_INCLUDE }>,
-  locale: Locale,
-) {
-  const tr = row.attraction?.translations.find((t) => t.locale === locale) ??
+function mapToDto(row: Prisma.EventGetPayload<{ include: typeof EVENT_INCLUDE }>, locale: Locale) {
+  const tr =
+    row.attraction?.translations.find((t) => t.locale === locale) ??
     row.attraction?.translations.find((t) => t.locale === "tr");
   return {
     id: row.id,
@@ -112,7 +123,8 @@ function mapToDto(
           slug: tr?.slug ?? row.attraction.id,
           name: tr?.name ?? "",
           heroImageUrl: row.attraction.media[0]?.url ?? null,
-          province: locale === "en" ? row.attraction.province.nameEn : row.attraction.province.nameTr,
+          province:
+            locale === "en" ? row.attraction.province.nameEn : row.attraction.province.nameTr,
         }
       : null,
   };
@@ -126,7 +138,13 @@ export async function deleteEvent(id: string) {
 
 // Open-now: given attraction.openingHours, decide if attraction is currently open in Türkiye time.
 export function isOpenNow(args: {
-  hours: { season: "ALL_YEAR" | "SUMMER" | "WINTER"; dayOfWeek: number; openTime: string | null; closeTime: string | null; isClosed: boolean }[];
+  hours: {
+    season: "ALL_YEAR" | "SUMMER" | "WINTER";
+    dayOfWeek: number;
+    openTime: string | null;
+    closeTime: string | null;
+    isClosed: boolean;
+  }[];
   closures?: { startsAt: Date; endsAt: Date | null }[];
   now?: Date;
 }): "OPEN" | "CLOSED" | "UNKNOWN" {
@@ -152,7 +170,8 @@ export function isOpenNow(args: {
   const minutes = istanbul.getUTCHours() * 60 + istanbul.getUTCMinutes();
   const [oh, om] = today.openTime.split(":").map(Number);
   const [ch, cm] = today.closeTime.split(":").map(Number);
-  if (oh === undefined || om === undefined || ch === undefined || cm === undefined) return "UNKNOWN";
+  if (oh === undefined || om === undefined || ch === undefined || cm === undefined)
+    return "UNKNOWN";
   const openMin = oh * 60 + om;
   const closeMin = ch * 60 + cm;
   return minutes >= openMin && minutes < closeMin ? "OPEN" : "CLOSED";

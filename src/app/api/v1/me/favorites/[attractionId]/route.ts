@@ -28,7 +28,10 @@ export async function POST(_req: NextRequest, ctx: { params: Promise<{ attractio
   }
 }
 
-export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ attractionId: string }> }) {
+export async function DELETE(
+  _req: NextRequest,
+  ctx: { params: Promise<{ attractionId: string }> },
+) {
   try {
     const user = await requireUser();
     const { attractionId } = await ctx.params;

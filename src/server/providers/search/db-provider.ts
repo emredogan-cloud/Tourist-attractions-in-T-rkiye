@@ -1,6 +1,6 @@
 import type { Locale } from "~/lib/i18n/config";
-import { prisma } from "~/server/db/client";
 import { turkishNormalize } from "~/lib/utils";
+import { prisma } from "~/server/db/client";
 import type { SearchHit, SearchProvider, SearchResult, SearchSuggestion } from "./types";
 
 const SYNONYMS_TO_BASE: Record<string, string> = {
@@ -31,11 +31,59 @@ function score(text: string, q: string): number {
   return 50;
 }
 
+// Damerau-Levenshtein distance for typo tolerance.
+function editDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const m = a.length;
+  const n = b.length;
+  const prev = new Array(n + 1).fill(0);
+  const curr = new Array(n + 1).fill(0);
+  for (let j = 0; j <= n; j++) prev[j] = j;
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      curr[j] = Math.min(curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    for (let j = 0; j <= n; j++) prev[j] = curr[j];
+  }
+  return prev[n];
+}
+
+function maxTypos(len: number): number {
+  if (len < 5) return 0;
+  if (len < 9) return 1;
+  return 2;
+}
+
+// Returns true if query word appears (or fuzzy-matches) anywhere in haystack.
+function fuzzyContains(haystack: string, queryWord: string): boolean {
+  if (queryWord.length < 3) return haystack.includes(queryWord);
+  if (haystack.includes(queryWord)) return true;
+  const allowed = maxTypos(queryWord.length);
+  if (allowed === 0) return false;
+  // Slide window of length ~queryWord.length over haystack words and compare.
+  for (const word of haystack.split(/[^a-z0-9]+/)) {
+    if (word.length === 0) continue;
+    if (Math.abs(word.length - queryWord.length) > allowed) continue;
+    if (editDistance(word, queryWord) <= allowed) return true;
+  }
+  return false;
+}
+
 export class DbSearchProvider implements SearchProvider {
   async search(args: {
     q: string;
     locale: Locale;
-    filters?: { category?: string; region?: string; province?: string; isUnesco?: boolean; isFreeEntry?: boolean };
+    filters?: {
+      category?: string;
+      region?: string;
+      province?: string;
+      isUnesco?: boolean;
+      isFreeEntry?: boolean;
+    };
     limit?: number;
     offset?: number;
   }): Promise<SearchResult> {
@@ -62,28 +110,45 @@ export class DbSearchProvider implements SearchProvider {
       take: 5000,
     });
     const normalizedVariants = variants.map((v) => turkishNormalize(v));
-    const matches = all.filter((m) => {
+    let matches = all.filter((m) => {
       const haystack = `${turkishNormalize(m.name)}\n${turkishNormalize(m.summary)}\n${turkishNormalize(m.description)}`;
       return normalizedVariants.some((v) => haystack.includes(v));
     });
 
+    // Typo tolerance fallback: if no strict matches, retry per-word with edit-distance.
+    if (matches.length === 0) {
+      const queryWords = normalizedVariants
+        .flatMap((v) => v.split(/[^a-z0-9]+/))
+        .filter((w) => w.length >= 3);
+      matches = all.filter((m) => {
+        const haystack = `${turkishNormalize(m.name)}\n${turkishNormalize(m.summary)}\n${turkishNormalize(m.description)}`;
+        return queryWords.some((w) => fuzzyContains(haystack, w));
+      });
+    }
+
     const filtered = matches.filter((m) => {
       const a = m.attraction;
-      if (args.filters?.category && a.category.code !== args.filters.category.toUpperCase()) return false;
+      if (args.filters?.category && a.category.code !== args.filters.category.toUpperCase())
+        return false;
       if (args.filters?.region && a.region.code !== args.filters.region.toUpperCase()) return false;
       if (args.filters?.province && a.province.slug !== args.filters.province) return false;
       if (args.filters?.isUnesco !== undefined) {
         if (args.filters.isUnesco && !a.unescoStatus) return false;
         if (!args.filters.isUnesco && a.unescoStatus) return false;
       }
-      if (args.filters?.isFreeEntry !== undefined && a.isFreeEntry !== args.filters.isFreeEntry) return false;
+      if (args.filters?.isFreeEntry !== undefined && a.isFreeEntry !== args.filters.isFreeEntry)
+        return false;
       return true;
     });
 
     const ranked = filtered
       .map((m) => {
         const a = m.attraction;
-        const s = Math.max(score(m.name, args.q) * 1.5, score(m.summary, args.q), score(m.description, args.q) * 0.5);
+        const s = Math.max(
+          score(m.name, args.q) * 1.5,
+          score(m.summary, args.q),
+          score(m.description, args.q) * 0.5,
+        );
         const adjusted = s + a.popularityScore * 2 + a.averageRating;
         const hero = a.media[0];
         const hit: SearchHit = {
@@ -105,7 +170,11 @@ export class DbSearchProvider implements SearchProvider {
       })
       .sort((a, b) => b.score - a.score);
 
-    const facets: Record<string, Record<string, number>> = { category: {}, region: {}, province: {} };
+    const facets: Record<string, Record<string, number>> = {
+      category: {},
+      region: {},
+      province: {},
+    };
     const cat = facets.category;
     const reg = facets.region;
     const prov = facets.province;
@@ -135,7 +204,10 @@ export class DbSearchProvider implements SearchProvider {
     const result = await this.search({ q: args.q, locale: args.locale, limit, offset: 0 });
     return {
       attractions: result.hits,
-      categories: Object.entries(result.facets.category ?? {}).map(([code]) => ({ code, name: code })),
+      categories: Object.entries(result.facets.category ?? {}).map(([code]) => ({
+        code,
+        name: code,
+      })),
       regions: Object.entries(result.facets.region ?? {}).map(([name]) => ({ code: name, name })),
     };
   }

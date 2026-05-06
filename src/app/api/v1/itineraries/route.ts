@@ -36,7 +36,10 @@ export async function POST(request: NextRequest) {
       ...(body.startDate ? { startDate: new Date(body.startDate) } : {}),
       ...(body.themes ? { themes: body.themes } : {}),
     });
-    return NextResponse.json({ itinerary: created }, { status: 201, headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json(
+      { itinerary: created },
+      { status: 201, headers: { "Cache-Control": "no-store" } },
+    );
   } catch (err) {
     return problem(err, request.url);
   }

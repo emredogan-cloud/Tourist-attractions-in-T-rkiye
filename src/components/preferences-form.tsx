@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { Locale } from "~/lib/i18n/config";
 import { Button } from "~/components/ui/button";
+import type { Locale } from "~/lib/i18n/config";
 
 type Prefs = {
   themeInterests: string[];
@@ -186,12 +186,11 @@ function Pills({
             type="button"
             onClick={() => onToggle(v)}
             aria-pressed={active}
-            className={
-              "rounded-full border px-3 py-1 text-sm transition-colors " +
-              (active
+            className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+              active
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card hover:bg-secondary")
-            }
+                : "border-border bg-card hover:bg-secondary"
+            }`}
           >
             {label(v)}
           </button>
@@ -220,12 +219,11 @@ function Single({
             type="button"
             onClick={() => onSelect(active ? null : v)}
             aria-pressed={active}
-            className={
-              "rounded-full border px-3 py-1 text-sm transition-colors " +
-              (active
+            className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+              active
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card hover:bg-secondary")
-            }
+                : "border-border bg-card hover:bg-secondary"
+            }`}
           >
             {l}
           </button>

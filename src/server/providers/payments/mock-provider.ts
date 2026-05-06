@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
-import { prisma } from "~/server/db/client";
 import { logger } from "~/lib/logger";
-import type { CheckoutSession, PaymentProvider, PaymentPlan, WebhookEvent } from "./types";
+import { prisma } from "~/server/db/client";
+import type { CheckoutSession, PaymentPlan, PaymentProvider, WebhookEvent } from "./types";
 
 // Dev/test mock provider that creates a "checkout" link which immediately
 // confirms the subscription via a /api/v1/payments/mock-confirm callback.

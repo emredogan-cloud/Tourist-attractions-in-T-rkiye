@@ -42,9 +42,12 @@ export async function DELETE() {
   try {
     const user = await requireUser();
     const result = await softDeleteUser(user.id);
-    return NextResponse.json({ ok: true, hardDeleteAt: result.hardDeleteAt }, {
-      headers: { "Cache-Control": "no-store" },
-    });
+    return NextResponse.json(
+      { ok: true, hardDeleteAt: result.hardDeleteAt },
+      {
+        headers: { "Cache-Control": "no-store" },
+      },
+    );
   } catch (err) {
     return problem(err);
   }

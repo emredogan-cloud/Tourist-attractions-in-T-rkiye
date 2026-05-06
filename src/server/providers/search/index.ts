@@ -1,7 +1,7 @@
 import { getConfig } from "~/lib/config";
-import { logger } from "~/lib/logger";
 import type { Locale } from "~/lib/i18n/config";
 import { mvpLocales } from "~/lib/i18n/config";
+import { logger } from "~/lib/logger";
 import { prisma } from "~/server/db/client";
 import { DbSearchProvider } from "./db-provider";
 import { MeilisearchProvider } from "./meilisearch-provider";
@@ -16,7 +16,11 @@ export async function getSearchProvider(): Promise<SearchProvider> {
   const config = getConfig();
   // Try Meilisearch if its host is configured non-default in production-like envs;
   // otherwise default to DB. In all environments, fall back to DB if Meili is unhealthy.
-  if (config.MEILISEARCH_HOST && !config.MEILISEARCH_HOST.includes("localhost") && config.MEILISEARCH_MASTER_KEY) {
+  if (
+    config.MEILISEARCH_HOST &&
+    !config.MEILISEARCH_HOST.includes("localhost") &&
+    config.MEILISEARCH_MASTER_KEY
+  ) {
     const meili = new MeilisearchProvider();
     if (await meili.isHealthy()) {
       logger.info({ host: config.MEILISEARCH_HOST }, "search: using Meilisearch");
@@ -117,8 +121,9 @@ export async function reindexAll(): Promise<{ counts: Record<Locale, number> }> 
   }
   await provider.reindexAll({ documents: docs });
   return {
-    counts: Object.fromEntries(
-      Object.entries(docs).map(([k, v]) => [k, v.length]),
-    ) as Record<Locale, number>,
+    counts: Object.fromEntries(Object.entries(docs).map(([k, v]) => [k, v.length])) as Record<
+      Locale,
+      number
+    >,
   };
 }

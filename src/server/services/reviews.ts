@@ -178,8 +178,15 @@ export async function reactToReview(args: {
   const review = await prisma.review.findUnique({ where: { id: args.reviewId } });
   if (!review) throw new NotFoundError("Review");
   await prisma.reviewReaction.upsert({
-    where: { reviewId_userId_type: { reviewId: args.reviewId, userId: args.userId, type: args.type } },
-    create: { reviewId: args.reviewId, userId: args.userId, type: args.type, reason: args.reason ?? null },
+    where: {
+      reviewId_userId_type: { reviewId: args.reviewId, userId: args.userId, type: args.type },
+    },
+    create: {
+      reviewId: args.reviewId,
+      userId: args.userId,
+      type: args.type,
+      reason: args.reason ?? null,
+    },
     update: { reason: args.reason ?? null },
   });
   if (args.type === "HELPFUL") {

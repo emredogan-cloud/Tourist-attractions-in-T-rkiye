@@ -17,17 +17,22 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ placeId
     const sourceParam = url.searchParams.get("src");
     const localeParam = url.searchParams.get("locale");
     const locale = isLocale(localeParam) ? localeParam : "tr";
+    const userAgent = request.headers.get("user-agent");
     const result = await recordAffiliateClick({
       placeId,
       ...(session?.user.id ? { userId: session.user.id } : {}),
       locale,
       ...(sourceParam ? { source: sourceParam } : {}),
       clientIp: clientIp(request),
-      ...(request.headers.get("user-agent") ? { userAgent: request.headers.get("user-agent")! } : {}),
+      ...(userAgent ? { userAgent } : {}),
     });
     if (!result) {
       return NextResponse.json(
-        { type: "https://docs.turkiye-tourism.app/errors/not_found", title: "Place not found", status: 404 },
+        {
+          type: "https://docs.turkiye-tourism.app/errors/not_found",
+          title: "Place not found",
+          status: 404,
+        },
         { status: 404, headers: { "Content-Type": "application/problem+json" } },
       );
     }

@@ -1,6 +1,6 @@
-import { prisma } from "~/server/db/client";
 import { ConflictError, NotFoundError, ValidationError } from "~/lib/errors";
-import { getPaymentProvider, PLAN_PRICING, type PaymentPlan } from "~/server/providers/payments";
+import { prisma } from "~/server/db/client";
+import { PLAN_PRICING, type PaymentPlan, getPaymentProvider } from "~/server/providers/payments";
 
 export async function startCheckout(args: {
   userId: string;

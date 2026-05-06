@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 
 const STORAGE_KEY = "tt:a11y:v1";
 
@@ -53,7 +53,11 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     setSettings((s) => ({ ...s, ...next }));
   }, []);
 
-  return <AccessibilityContext.Provider value={{ settings, set }}>{children}</AccessibilityContext.Provider>;
+  return (
+    <AccessibilityContext.Provider value={{ settings, set }}>
+      {children}
+    </AccessibilityContext.Provider>
+  );
 }
 
 export function useAccessibility(): Ctx {

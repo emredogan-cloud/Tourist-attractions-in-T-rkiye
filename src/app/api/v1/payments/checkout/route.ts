@@ -25,10 +25,13 @@ export async function POST(request: NextRequest) {
       locale: body.locale,
       baseUrl,
     });
-    return NextResponse.json({ checkout: session }, {
-      status: 201,
-      headers: { "Cache-Control": "no-store" },
-    });
+    return NextResponse.json(
+      { checkout: session },
+      {
+        status: 201,
+        headers: { "Cache-Control": "no-store" },
+      },
+    );
   } catch (err) {
     return problem(err, request.url);
   }

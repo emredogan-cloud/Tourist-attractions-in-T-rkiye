@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { Button } from "~/components/ui/button";
 import type { AuthUser } from "~/server/providers/auth";
 import { ReviewForm } from "./review-form";
-import { Button } from "~/components/ui/button";
 
 type Review = {
   id: string;
@@ -56,7 +56,7 @@ export function ReviewsSection({
   }, [sort, attractionSlug]);
 
   const total = data.total;
-  const totalRated = (Object.values(data.histogram).reduce((a, b) => a + b, 0) || 1);
+  const totalRated = Object.values(data.histogram).reduce((a, b) => a + b, 0) || 1;
   const avg =
     totalRated > 0
       ? (
@@ -75,7 +75,9 @@ export function ReviewsSection({
         <div>
           <h2 className="font-display text-xl font-semibold">{td("reviews")}</h2>
           <p className="text-sm text-muted-foreground">
-            <span aria-hidden className="text-amber-500">★</span>{" "}
+            <span aria-hidden className="text-amber-500">
+              ★
+            </span>{" "}
             <span className="font-medium text-foreground">{avg}</span>
             {" / 5 · "}
             {t("totalReviews", { count: total })}
@@ -106,7 +108,9 @@ export function ReviewsSection({
           return (
             <div key={bucket} className="flex items-center gap-2 text-sm">
               <span className="w-4 tabular-nums text-muted-foreground">{bucket}</span>
-              <span aria-hidden className="text-amber-500">★</span>
+              <span aria-hidden className="text-amber-500">
+                ★
+              </span>
               <div className="h-2 flex-1 overflow-hidden rounded bg-muted">
                 <div className="h-full bg-amber-400" style={{ width: `${pct}%` }} />
               </div>

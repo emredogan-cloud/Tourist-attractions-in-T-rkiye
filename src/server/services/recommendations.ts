@@ -1,8 +1,8 @@
 import type { Prisma } from "@prisma/client";
-import { prisma } from "~/server/db/client";
 import { ValidationError } from "~/lib/errors";
 import type { Locale } from "~/lib/i18n/config";
 import { haversineKm } from "~/lib/utils";
+import { prisma } from "~/server/db/client";
 
 const ATTRACTION_INCLUDE = {
   category: true,
@@ -62,7 +62,11 @@ function validatePrefs(p: Preferences) {
   if (p.preferredRegions.length > 7) throw new ValidationError("Too many regions");
 }
 
-export async function recommendForUser(args: { userId: string | null; locale: Locale; limit?: number }) {
+export async function recommendForUser(args: {
+  userId: string | null;
+  locale: Locale;
+  limit?: number;
+}) {
   const limit = args.limit ?? 8;
   const [prefs, favorites, recentReviews] = args.userId
     ? await Promise.all([
@@ -122,7 +126,8 @@ export async function recommendForUser(args: { userId: string | null; locale: Lo
     .map((c) => {
       const themeScore = themeVec.get(c.category.code) ?? 0;
       const regionScore = regionVec.get(c.region.code) ?? 0;
-      const score = themeScore * 1.4 + regionScore + c.popularityScore * 0.6 + c.averageRating * 0.4;
+      const score =
+        themeScore * 1.4 + regionScore + c.popularityScore * 0.6 + c.averageRating * 0.4;
       return { c, score };
     })
     .sort((a, b) => b.score - a.score)
@@ -179,8 +184,14 @@ function mapToOut(row: AttractionRow, locale: Locale) {
     name: tr?.name ?? "",
     summary: tr?.summary ?? "",
     category: { code: row.category.code, name: row.category.code },
-    region: { code: row.region.code, name: locale === "en" ? row.region.nameEn : row.region.nameTr },
-    province: { slug: row.province.slug, name: locale === "en" ? row.province.nameEn : row.province.nameTr },
+    region: {
+      code: row.region.code,
+      name: locale === "en" ? row.region.nameEn : row.region.nameTr,
+    },
+    province: {
+      slug: row.province.slug,
+      name: locale === "en" ? row.province.nameEn : row.province.nameTr,
+    },
     district: row.district,
     latitude: row.latitude,
     longitude: row.longitude,

@@ -5,7 +5,7 @@ import type { NearbyPlaceFetched, NearbyProvider, NearbyType } from "./types";
 // so the same attraction always gets the same nearby places. Real provider plugs
 // in by replacing this class with a Booking.com / Foursquare client.
 function rngFrom(seed: string): () => number {
-  let h = parseInt(createHash("sha256").update(seed).digest("hex").slice(0, 12), 16);
+  let h = Number.parseInt(createHash("sha256").update(seed).digest("hex").slice(0, 12), 16);
   return () => {
     h = (h * 1664525 + 1013904223) >>> 0;
     return h / 0xffffffff;
@@ -38,9 +38,14 @@ const RESTAURANT_NAMES = [
   "Anatolian Spice",
 ];
 
-function makePlace(
-  args: { lat: number; lng: number; index: number; type: NearbyType; rng: () => number; provider: string },
-): NearbyPlaceFetched {
+function makePlace(args: {
+  lat: number;
+  lng: number;
+  index: number;
+  type: NearbyType;
+  rng: () => number;
+  provider: string;
+}): NearbyPlaceFetched {
   const dLat = (args.rng() - 0.5) * 0.04; // ~ within 2km
   const dLng = (args.rng() - 0.5) * 0.04;
   const names = args.type === "HOTEL" ? HOTEL_NAMES : RESTAURANT_NAMES;
@@ -71,7 +76,12 @@ function makePlace(
 
 export class MockBookingProvider implements NearbyProvider {
   readonly providerName = "booking-mock";
-  async fetchNearby({ lat, lng, type, limit = 10 }: { lat: number; lng: number; type: NearbyType; radiusM: number; limit?: number }) {
+  async fetchNearby({
+    lat,
+    lng,
+    type,
+    limit = 10,
+  }: { lat: number; lng: number; type: NearbyType; radiusM: number; limit?: number }) {
     if (type !== "HOTEL") return [];
     const rng = rngFrom(`${lat},${lng},HOTEL`);
     const out: NearbyPlaceFetched[] = [];
@@ -84,7 +94,12 @@ export class MockBookingProvider implements NearbyProvider {
 
 export class MockFoursquareProvider implements NearbyProvider {
   readonly providerName = "foursquare-mock";
-  async fetchNearby({ lat, lng, type, limit = 10 }: { lat: number; lng: number; type: NearbyType; radiusM: number; limit?: number }) {
+  async fetchNearby({
+    lat,
+    lng,
+    type,
+    limit = 10,
+  }: { lat: number; lng: number; type: NearbyType; radiusM: number; limit?: number }) {
     if (type !== "RESTAURANT") return [];
     const rng = rngFrom(`${lat},${lng},RESTAURANT`);
     const out: NearbyPlaceFetched[] = [];

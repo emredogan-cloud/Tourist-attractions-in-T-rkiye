@@ -1,6 +1,11 @@
-import { turkishNormalize } from "~/lib/utils";
 import type { Locale } from "~/lib/i18n/config";
-import type { ModerationFlag, ModerationInput, ModerationProvider, ModerationVerdict } from "./types";
+import { turkishNormalize } from "~/lib/utils";
+import type {
+  ModerationFlag,
+  ModerationInput,
+  ModerationProvider,
+  ModerationVerdict,
+} from "./types";
 import { PII_PATTERNS, PROFANITY_EN, PROFANITY_TR } from "./wordlists";
 
 const wordlists: Partial<Record<Locale, string[]>> = {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import type { WeatherSnapshot } from "~/server/providers/weather/types";
 
 const ICON: Record<string, string> = {

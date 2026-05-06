@@ -10,15 +10,24 @@ export class ClerkAuthProvider implements AuthProvider {
   }
 
   async signUp(): Promise<{ session: AuthSession; setCookie: never }> {
-    throw new AppError("Clerk provider not implemented in this build", { status: 501, code: "not_implemented" });
+    throw new AppError("Clerk provider not implemented in this build", {
+      status: 501,
+      code: "not_implemented",
+    });
   }
 
   async signIn(): Promise<{ session: AuthSession; setCookie: never }> {
-    throw new AppError("Clerk provider not implemented in this build", { status: 501, code: "not_implemented" });
+    throw new AppError("Clerk provider not implemented in this build", {
+      status: 501,
+      code: "not_implemented",
+    });
   }
 
   async signOut(): Promise<{ clearCookie: never }> {
-    throw new AppError("Clerk provider not implemented in this build", { status: 501, code: "not_implemented" });
+    throw new AppError("Clerk provider not implemented in this build", {
+      status: 501,
+      code: "not_implemented",
+    });
   }
 
   async resolveSession(): Promise<AuthSession | null> {

@@ -5,7 +5,14 @@ import type { Locale } from "~/lib/i18n/config";
 import { isLocale } from "~/lib/i18n/config";
 import { logger } from "~/lib/logger";
 import { prisma } from "~/server/db/client";
-import type { AuthProvider, AuthSession, AuthUser, SetCookie, SignInInput, SignUpInput } from "./types";
+import type {
+  AuthProvider,
+  AuthSession,
+  AuthUser,
+  SetCookie,
+  SignInInput,
+  SignUpInput,
+} from "./types";
 
 const COOKIE_NAME = "tt_session";
 const TOKEN_TTL_DAYS = 14;
@@ -40,15 +47,15 @@ function makeToken(userId: string, sessionId: string, secret: string, expiresAt:
   return `${body}.${sig}`;
 }
 
-function parseToken(token: string, secret: string): { userId: string; sessionId: string; expiresAt: Date } | null {
+function parseToken(
+  token: string,
+  secret: string,
+): { userId: string; sessionId: string; expiresAt: Date } | null {
   const parts = token.split(".");
   if (parts.length !== 4) return null;
   const [userId, sessionId, expiresStr, sig] = parts as [string, string, string, string];
   const expected = sign(`${userId}.${sessionId}.${expiresStr}`, secret);
-  if (
-    expected.length !== sig.length ||
-    !timingSafeEqual(Buffer.from(expected), Buffer.from(sig))
-  ) {
+  if (expected.length !== sig.length || !timingSafeEqual(Buffer.from(expected), Buffer.from(sig))) {
     return null;
   }
   const expires = Number(expiresStr);
@@ -111,7 +118,11 @@ export class MockAuthProvider implements AuthProvider {
     }
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing && !existing.deletedAt) throw new ConflictError("Email already registered");
-    if (existing?.deletedAt && existing.hardDeleteAt && existing.hardDeleteAt.getTime() > Date.now()) {
+    if (
+      existing?.deletedAt &&
+      existing.hardDeleteAt &&
+      existing.hardDeleteAt.getTime() > Date.now()
+    ) {
       // 90-day re-registration hold (per KVKK/GDPR retention design)
       throw new ConflictError("Email is in deletion hold; try again later or contact support");
     }

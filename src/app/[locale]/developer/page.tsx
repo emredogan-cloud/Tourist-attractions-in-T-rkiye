@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { ApiKeysPanel } from "~/components/api-keys-panel";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { getCurrentSession } from "~/server/providers/auth";
 import { listApiKeys } from "~/server/services/api-keys";
-import { ApiKeysPanel } from "~/components/api-keys-panel";
 
 export const dynamic = "force-dynamic";
 
@@ -28,9 +28,7 @@ export default async function DeveloperPage({
             : "Create API keys to access the Türkiye Tourism API from your own app."}
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          {locale === "tr"
-            ? "Belgeler:"
-            : "Docs:"}{" "}
+          {locale === "tr" ? "Belgeler:" : "Docs:"}{" "}
           <a href="/api/v1/openapi.json" className="text-primary hover:underline">
             /api/v1/openapi.json
           </a>

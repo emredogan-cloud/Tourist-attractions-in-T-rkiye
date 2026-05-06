@@ -1,14 +1,18 @@
-import { type NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { parseJsonBodyWith } from "~/lib/api-helpers";
 import { problem } from "~/lib/api-response";
-import { isLocale, type Locale } from "~/lib/i18n/config";
+import { type Locale, isLocale } from "~/lib/i18n/config";
 import { logger } from "~/lib/logger";
 import { clientIp } from "~/lib/rate-limit";
-import { getCurrentSession } from "~/server/providers/auth";
-import { getAIProvider } from "~/server/providers/ai";
 import { prisma } from "~/server/db/client";
-import { enforceAnonRate, enforceUserBudget, recordTokens } from "~/server/services/concierge-budget";
+import { getAIProvider } from "~/server/providers/ai";
+import { getCurrentSession } from "~/server/providers/auth";
+import {
+  enforceAnonRate,
+  enforceUserBudget,
+  recordTokens,
+} from "~/server/services/concierge-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,7 +59,7 @@ export async function POST(request: NextRequest) {
     const provider = getAIProvider();
     const encoder = new TextEncoder();
     let assistantBuffer = "";
-    let citations: { slug: string; name: string }[] = [];
+    const citations: { slug: string; name: string }[] = [];
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
         try {

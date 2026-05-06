@@ -56,9 +56,15 @@ export function ApiKeysPanel({ initial, locale }: { initial: KeyRow[]; locale: L
 
   return (
     <div className="space-y-6">
-      <form onSubmit={create} className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card p-4">
+      <form
+        onSubmit={create}
+        className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card p-4"
+      >
         <div className="flex-1 min-w-[200px]">
-          <label htmlFor="apikey-name" className="block text-xs uppercase tracking-wide text-muted-foreground">
+          <label
+            htmlFor="apikey-name"
+            className="block text-xs uppercase tracking-wide text-muted-foreground"
+          >
             {locale === "tr" ? "Anahtar adı" : "Key name"}
           </label>
           <input
@@ -71,7 +77,10 @@ export function ApiKeysPanel({ initial, locale }: { initial: KeyRow[]; locale: L
           />
         </div>
         <div>
-          <label htmlFor="apikey-scope" className="block text-xs uppercase tracking-wide text-muted-foreground">
+          <label
+            htmlFor="apikey-scope"
+            className="block text-xs uppercase tracking-wide text-muted-foreground"
+          >
             {locale === "tr" ? "İzin" : "Scope"}
           </label>
           <select
@@ -92,7 +101,9 @@ export function ApiKeysPanel({ initial, locale }: { initial: KeyRow[]; locale: L
       {newKey && (
         <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 dark:border-emerald-900/40 dark:bg-emerald-900/10">
           <p className="text-xs font-semibold uppercase tracking-wide">
-            {locale === "tr" ? "Yeni anahtar (yalnızca şimdi gösterilir)" : "New key (only shown now)"}
+            {locale === "tr"
+              ? "Yeni anahtar (yalnızca şimdi gösterilir)"
+              : "New key (only shown now)"}
           </p>
           <code className="mt-2 block break-all rounded-md bg-background px-3 py-2 text-sm">
             {newKey.key}
@@ -128,9 +139,13 @@ export function ApiKeysPanel({ initial, locale }: { initial: KeyRow[]; locale: L
                   <td className="px-3 py-2 tabular-nums">{k.rateLimit}/h</td>
                   <td className="px-3 py-2">
                     {k.revokedAt ? (
-                      <span className="text-destructive">{locale === "tr" ? "İptal" : "Revoked"}</span>
+                      <span className="text-destructive">
+                        {locale === "tr" ? "İptal" : "Revoked"}
+                      </span>
                     ) : (
-                      <span className="text-emerald-700 dark:text-emerald-300">{locale === "tr" ? "Aktif" : "Active"}</span>
+                      <span className="text-emerald-700 dark:text-emerald-300">
+                        {locale === "tr" ? "Aktif" : "Active"}
+                      </span>
                     )}
                   </td>
                   <td className="px-3 py-2 text-right">

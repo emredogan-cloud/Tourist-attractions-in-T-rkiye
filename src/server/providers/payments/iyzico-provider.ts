@@ -1,5 +1,5 @@
 import { UpstreamError } from "~/lib/errors";
-import type { CheckoutSession, PaymentProvider, PaymentPlan, WebhookEvent } from "./types";
+import type { CheckoutSession, PaymentProvider, WebhookEvent } from "./types";
 
 // Iyzico (Türkiye-native, supports TRY + 3D Secure) provider stub.
 // Activate by installing `iyzipay` and filling in the bodies.

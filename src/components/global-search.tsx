@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "~/lib/i18n/routing";
 import { cn } from "~/lib/utils";
 import type { SearchSuggestion } from "~/server/providers/search";
@@ -102,10 +102,6 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
               commit(q);
             }
           }}
-          role="combobox"
-          aria-expanded={open}
-          aria-haspopup="listbox"
-          aria-owns={listboxId}
           className="relative w-full"
         >
           <svg
@@ -123,6 +119,12 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
             type="search"
             name="q"
             value={q}
+            role="combobox"
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-owns={listboxId}
+            aria-controls={listboxId}
+            aria-activedescendant={active >= 0 ? `${listboxId}-${active}` : undefined}
             onChange={(e) => {
               setQ(e.target.value);
               setOpen(true);
@@ -142,8 +144,6 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
             }}
             placeholder={t("searchPlaceholder")}
             aria-label={t("search")}
-            aria-controls={listboxId}
-            aria-activedescendant={active >= 0 ? `${listboxId}-${active}` : undefined}
             autoComplete="off"
             spellCheck={false}
             className={
@@ -158,7 +158,11 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
       {open && flatItems.length > 0 && (
         <ul
           id={listboxId}
+          tabIndex={-1}
+          // biome-ignore lint/a11y/useSemanticElements: ARIA combobox listbox pattern
+          // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: WAI-ARIA combobox listbox is a ul
           role="listbox"
+          aria-label={t("search")}
           className="absolute left-0 right-0 z-30 mt-1 max-h-[60vh] overflow-y-auto rounded-md border border-border bg-popover py-1 shadow-lg"
         >
           {q.trim().length < 2 && recents.length > 0 && (
@@ -175,16 +179,26 @@ export function GlobalSearch({ compact = false }: { compact?: boolean }) {
             <li
               key={`${it.label}-${i}`}
               id={`${listboxId}-${i}`}
+              tabIndex={-1}
+              // biome-ignore lint/a11y/useSemanticElements: ARIA combobox option
+              // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: WAI-ARIA combobox option is a li
               role="option"
               aria-selected={active === i}
               className={cn(
-                "cursor-pointer px-3 py-2 text-sm hover:bg-secondary",
+                "block w-full cursor-pointer px-3 py-2 text-sm hover:bg-secondary",
                 active === i && "bg-secondary",
               )}
               onMouseDown={(e) => {
                 e.preventDefault();
                 if (it.href) router.push(it.href);
                 else if (it.query) commit(it.query);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  if (it.href) router.push(it.href);
+                  else if (it.query) commit(it.query);
+                }
               }}
             >
               {it.label}

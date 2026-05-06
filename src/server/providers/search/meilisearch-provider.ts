@@ -1,8 +1,8 @@
-import { MeiliSearch, type Index } from "meilisearch";
+import { type Index, MeiliSearch } from "meilisearch";
 import { getConfig } from "~/lib/config";
 import type { Locale } from "~/lib/i18n/config";
-import type { SearchHit, SearchProvider, SearchResult, SearchSuggestion } from "./types";
 import { logger } from "~/lib/logger";
+import type { SearchHit, SearchProvider, SearchResult, SearchSuggestion } from "./types";
 
 const SYNONYMS: Partial<Record<Locale, Record<string, string[]>>> = {
   tr: {
@@ -58,7 +58,14 @@ export class MeilisearchProvider implements SearchProvider {
     if (!this.settingsApplied.has(name)) {
       await idx.updateSettings({
         searchableAttributes: ["name", "summary", "category", "province", "region"],
-        filterableAttributes: ["category", "region", "province", "isFreeEntry", "isUnesco", "averageRating"],
+        filterableAttributes: [
+          "category",
+          "region",
+          "province",
+          "isFreeEntry",
+          "isUnesco",
+          "averageRating",
+        ],
         sortableAttributes: ["averageRating", "popularityScore", "reviewCount"],
         rankingRules: ["words", "typo", "proximity", "attribute", "sort", "exactness"],
         synonyms: SYNONYMS[locale] ?? {},
@@ -73,7 +80,13 @@ export class MeilisearchProvider implements SearchProvider {
   async search(args: {
     q: string;
     locale: Locale;
-    filters?: { category?: string; region?: string; province?: string; isUnesco?: boolean; isFreeEntry?: boolean };
+    filters?: {
+      category?: string;
+      region?: string;
+      province?: string;
+      isUnesco?: boolean;
+      isFreeEntry?: boolean;
+    };
     limit?: number;
     offset?: number;
   }): Promise<SearchResult> {
@@ -83,8 +96,10 @@ export class MeilisearchProvider implements SearchProvider {
     if (args.filters?.category) filterParts.push(`category = "${args.filters.category}"`);
     if (args.filters?.region) filterParts.push(`region = "${args.filters.region}"`);
     if (args.filters?.province) filterParts.push(`province = "${args.filters.province}"`);
-    if (args.filters?.isUnesco !== undefined) filterParts.push(`isUnesco = ${args.filters.isUnesco}`);
-    if (args.filters?.isFreeEntry !== undefined) filterParts.push(`isFreeEntry = ${args.filters.isFreeEntry}`);
+    if (args.filters?.isUnesco !== undefined)
+      filterParts.push(`isUnesco = ${args.filters.isUnesco}`);
+    if (args.filters?.isFreeEntry !== undefined)
+      filterParts.push(`isFreeEntry = ${args.filters.isFreeEntry}`);
 
     const result = await idx.search<SearchHit>(args.q, {
       limit: Math.min(args.limit ?? 20, 100),

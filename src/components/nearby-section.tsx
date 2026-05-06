@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 
 type NearbyItem = {
@@ -46,7 +46,11 @@ export function NearbySection({ slug }: { slug: string }) {
     <section className="space-y-4">
       <header className="flex items-end justify-between">
         <h2 className="font-display text-xl font-semibold">{t("title")}</h2>
-        <div role="tablist" aria-label={t("title")} className="inline-flex rounded-md border border-input">
+        <div
+          role="tablist"
+          aria-label={t("title")}
+          className="inline-flex rounded-md border border-input"
+        >
           {(["hotel", "restaurant"] as const).map((kind) => (
             <button
               key={kind}
@@ -54,12 +58,11 @@ export function NearbySection({ slug }: { slug: string }) {
               role="tab"
               aria-selected={tab === kind}
               onClick={() => setTab(kind)}
-              className={
-                "px-3 py-1 text-sm transition-colors first:rounded-l-md last:rounded-r-md " +
-                (tab === kind
+              className={`px-3 py-1 text-sm transition-colors first:rounded-l-md last:rounded-r-md ${
+                tab === kind
                   ? "bg-primary text-primary-foreground"
-                  : "bg-background hover:bg-secondary")
-              }
+                  : "bg-background hover:bg-secondary"
+              }`}
             >
               {kind === "hotel" ? t("hotels") : t("restaurants")}
             </button>
@@ -84,27 +87,34 @@ export function NearbySection({ slug }: { slug: string }) {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((it) => (
-            <div key={it.id} className="overflow-hidden rounded-md border border-border bg-card p-4">
+            <div
+              key={it.id}
+              className="overflow-hidden rounded-md border border-border bg-card p-4"
+            >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="line-clamp-2 font-medium">{it.name}</h3>
                 {typeof it.rating === "number" && (
                   <span className="shrink-0 text-sm">
-                    <span aria-hidden className="text-amber-500">★</span>{" "}
+                    <span aria-hidden className="text-amber-500">
+                      ★
+                    </span>{" "}
                     {it.rating.toFixed(1)}
                   </span>
                 )}
               </div>
               <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                <span>
-                  {(it.distanceM / 1000).toFixed(1)} km
-                </span>
+                <span>{(it.distanceM / 1000).toFixed(1)} km</span>
                 {it.priceLevel && <span>{"₺".repeat(it.priceLevel)}</span>}
                 <span className="ml-auto rounded bg-secondary px-1.5 py-0.5 text-[10px] uppercase">
                   {it.providerName.split("-")[0]}
                 </span>
               </div>
               <Button asChild variant="outline" size="sm" className="mt-3 w-full">
-                <a href={it.affiliateRedirectUrl} target="_blank" rel="noopener noreferrer sponsored">
+                <a
+                  href={it.affiliateRedirectUrl}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                >
                   {t("visit")} →
                 </a>
               </Button>

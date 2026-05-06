@@ -1,11 +1,11 @@
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { type Locale, isLocale } from "~/lib/i18n/config";
-import { getCurrentSession } from "~/server/providers/auth";
-import { listFavorites } from "~/server/services/users";
-import { listAttractions } from "~/server/services/attractions";
+import { redirect } from "next/navigation";
 import { AttractionGrid } from "~/components/attraction-grid";
+import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
+import { getCurrentSession } from "~/server/providers/auth";
+import { listAttractions } from "~/server/services/attractions";
+import { listFavorites } from "~/server/services/users";
 import type { AttractionListItem } from "~/types/attraction";
 
 export const dynamic = "force-dynamic";

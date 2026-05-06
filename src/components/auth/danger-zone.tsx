@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { Locale } from "~/lib/i18n/config";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import type { Locale } from "~/lib/i18n/config";
 
 export function DangerZone({ locale }: { locale: Locale }) {
   const t = useTranslations("auth");

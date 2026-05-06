@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { DangerZone } from "~/components/auth/danger-zone";
+import { ProfileForm } from "~/components/auth/profile-form";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { getCurrentSession } from "~/server/providers/auth";
-import { ProfileForm } from "~/components/auth/profile-form";
-import { DangerZone } from "~/components/auth/danger-zone";
 
 export const dynamic = "force-dynamic";
 

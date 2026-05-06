@@ -7,7 +7,13 @@ export type CheckoutSession = {
 };
 
 export type WebhookEvent =
-  | { type: "subscription.created"; userId: string; plan: PaymentPlan; renewsAt: Date; externalId: string }
+  | {
+      type: "subscription.created";
+      userId: string;
+      plan: PaymentPlan;
+      renewsAt: Date;
+      externalId: string;
+    }
   | { type: "subscription.canceled"; userId: string; externalId: string }
   | { type: "subscription.payment_failed"; userId: string; externalId: string };
 
@@ -26,7 +32,10 @@ export interface PaymentProvider {
   parseWebhook(args: { rawBody: string; signature: string | null }): Promise<WebhookEvent | null>;
 }
 
-export const PLAN_PRICING: Record<PaymentPlan, { monthlyTryEquivalent: number; description: string }> = {
+export const PLAN_PRICING: Record<
+  PaymentPlan,
+  { monthlyTryEquivalent: number; description: string }
+> = {
   turkiye_plus_monthly: { monthlyTryEquivalent: 99, description: "Türkiye+ Monthly" },
   turkiye_plus_yearly: { monthlyTryEquivalent: 79, description: "Türkiye+ Yearly (2 months free)" },
 };

@@ -26,7 +26,10 @@ function buildReplica(): PrismaClient | null {
   try {
     const client = new PrismaClient({
       datasources: { db: { url } },
-      log: [{ emit: "event", level: "warn" }, { emit: "event", level: "error" }],
+      log: [
+        { emit: "event", level: "warn" },
+        { emit: "event", level: "error" },
+      ],
     });
     if (process.env.NODE_ENV !== "production") {
       globalThis.__prismaReplica = client;
@@ -48,7 +51,11 @@ export const db = {
 };
 
 // Optional: drift check for /readyz extended healthcheck.
-export async function readPrimaryWriteDelta(): Promise<{ primaryAt: number; replicaAt: number; deltaMs: number } | null> {
+export async function readPrimaryWriteDelta(): Promise<{
+  primaryAt: number;
+  replicaAt: number;
+  deltaMs: number;
+} | null> {
   if (!replica) return null;
   try {
     const [primaryRow] = await primary.$queryRawUnsafe<{ now: Date }[]>("SELECT now() AS now");

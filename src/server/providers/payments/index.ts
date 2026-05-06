@@ -22,7 +22,9 @@ export function getPaymentProvider(): PaymentProvider {
   } else {
     cached = new MockPaymentProvider();
     if (config.PAYMENT_PROVIDER !== "mock") {
-      logger.warn(`payments: PAYMENT_PROVIDER=${config.PAYMENT_PROVIDER} but credentials missing — using mock`);
+      logger.warn(
+        `payments: PAYMENT_PROVIDER=${config.PAYMENT_PROVIDER} but credentials missing — using mock`,
+      );
     }
   }
   return cached;

@@ -8,11 +8,29 @@ type Stop = {
   id: string;
   sortOrder: number;
   attractionId: string;
-  attraction: { id: string; latitude: number; longitude: number; translations: { locale: string; name: string; slug: string }[] };
+  attraction: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    translations: { locale: string; name: string; slug: string }[];
+  };
   plannedDurationMin: number | null;
 };
-type Day = { id: string; dayNumber: number; date: Date | null; stops: Stop[]; notes: string | null };
-type Itinerary = { id: string; title: string; description: string | null; isPublic: boolean; shareToken: string; days: Day[] };
+type Day = {
+  id: string;
+  dayNumber: number;
+  date: Date | null;
+  stops: Stop[];
+  notes: string | null;
+};
+type Itinerary = {
+  id: string;
+  title: string;
+  description: string | null;
+  isPublic: boolean;
+  shareToken: string;
+  days: Day[];
+};
 
 export function ItineraryEditor({
   itinerary,
@@ -21,7 +39,15 @@ export function ItineraryEditor({
 }: {
   itinerary: Itinerary;
   locale: Locale;
-  t: { day: string; addStop: string; removeStop: string; optimize: string; share: string; clone: string; exportPdf: string };
+  t: {
+    day: string;
+    addStop: string;
+    removeStop: string;
+    optimize: string;
+    share: string;
+    clone: string;
+    exportPdf: string;
+  };
 }) {
   const [data, setData] = useState(itinerary);
 
@@ -56,7 +82,11 @@ export function ItineraryEditor({
     const idx = ids.indexOf(stopId);
     const target = idx + direction;
     if (idx < 0 || target < 0 || target >= ids.length) return;
-    [ids[idx], ids[target]] = [ids[target]!, ids[idx]!];
+    const a = ids[idx];
+    const b = ids[target];
+    if (a === undefined || b === undefined) return;
+    ids[idx] = b;
+    ids[target] = a;
     await fetch(`/api/v1/itinerary-days/${dayId}/stops`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -110,8 +140,12 @@ export function ItineraryEditor({
           <Button variant="outline" onClick={togglePublic}>
             {data.isPublic ? "Public ✓" : "Make public"}
           </Button>
-          <Button variant="outline" onClick={copyShareLink}>{t.share}</Button>
-          <Button variant="outline" onClick={clone}>{t.clone}</Button>
+          <Button variant="outline" onClick={copyShareLink}>
+            {t.share}
+          </Button>
+          <Button variant="outline" onClick={clone}>
+            {t.clone}
+          </Button>
           <a
             href={`/${locale}/itineraries/${data.id}/print`}
             target="_blank"
@@ -131,7 +165,12 @@ export function ItineraryEditor({
                 {t.day.replace("{n}", String(day.dayNumber))}
               </h2>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => optimize(day.id)} disabled={day.stops.length < 3}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => optimize(day.id)}
+                  disabled={day.stops.length < 3}
+                >
                   {t.optimize}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => deleteDay(day.id)}>
@@ -159,13 +198,30 @@ export function ItineraryEditor({
                     >
                       {nameOf(s)}
                     </a>
-                    <Button size="sm" variant="ghost" aria-label="Move up" onClick={() => moveStop(day.id, s.id, -1)} disabled={i === 0}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label="Move up"
+                      onClick={() => moveStop(day.id, s.id, -1)}
+                      disabled={i === 0}
+                    >
                       ↑
                     </Button>
-                    <Button size="sm" variant="ghost" aria-label="Move down" onClick={() => moveStop(day.id, s.id, 1)} disabled={i === day.stops.length - 1}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label="Move down"
+                      onClick={() => moveStop(day.id, s.id, 1)}
+                      disabled={i === day.stops.length - 1}
+                    >
                       ↓
                     </Button>
-                    <Button size="sm" variant="ghost" aria-label={t.removeStop} onClick={() => deleteStop(s.id)}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      aria-label={t.removeStop}
+                      onClick={() => deleteStop(s.id)}
+                    >
                       ✕
                     </Button>
                   </li>

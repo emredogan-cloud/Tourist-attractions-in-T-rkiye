@@ -29,9 +29,7 @@ export default async function HomePage({
     listAttractions({ locale, limit: 8, sort: "popular" }),
     listCategories(locale),
     listRegionsWithProvinces(locale),
-    session
-      ? recommendForUser({ userId: session.user.id, locale, limit: 4 })
-      : Promise.resolve([]),
+    session ? recommendForUser({ userId: session.user.id, locale, limit: 4 }) : Promise.resolve([]),
   ]);
 
   return (

@@ -54,11 +54,19 @@ export async function listMyItineraries(userId: string) {
   });
 }
 
-export async function getItinerary(args: { id: string; userId: string | null; shareToken?: string }) {
+export async function getItinerary(args: {
+  id: string;
+  userId: string | null;
+  shareToken?: string;
+}) {
   const it = await prisma.itinerary.findUnique({ where: { id: args.id }, include: INCLUDE });
   if (!it) throw new NotFoundError("Itinerary");
   // Owner or share token
-  if (it.userId && it.userId !== args.userId && (!args.shareToken || args.shareToken !== it.shareToken)) {
+  if (
+    it.userId &&
+    it.userId !== args.userId &&
+    (!args.shareToken || args.shareToken !== it.shareToken)
+  ) {
     if (!it.isPublic) throw new ForbiddenError();
   }
   return it;
@@ -76,7 +84,13 @@ export async function getByShareToken(token: string) {
 export async function updateItinerary(args: {
   id: string;
   userId: string;
-  patch: { title?: string; description?: string; startDate?: Date | null; isPublic?: boolean; themes?: string[] };
+  patch: {
+    title?: string;
+    description?: string;
+    startDate?: Date | null;
+    isPublic?: boolean;
+    themes?: string[];
+  };
 }) {
   const it = await prisma.itinerary.findUnique({ where: { id: args.id } });
   if (!it) throw new NotFoundError("Itinerary");
@@ -102,7 +116,10 @@ export async function deleteItinerary(args: { id: string; userId: string }) {
 }
 
 export async function addDay(args: { itineraryId: string; userId: string }) {
-  const it = await prisma.itinerary.findUnique({ where: { id: args.itineraryId }, include: { days: true } });
+  const it = await prisma.itinerary.findUnique({
+    where: { id: args.itineraryId },
+    include: { days: true },
+  });
   if (!it) throw new NotFoundError("Itinerary");
   if (it.userId !== args.userId) throw new ForbiddenError();
   const next = (it.days.reduce((m, d) => Math.max(m, d.dayNumber), 0) ?? 0) + 1;
@@ -222,13 +239,17 @@ export async function optimizeDay(args: { dayId: string; userId: string }) {
   if (day.itinerary.userId !== args.userId) throw new ForbiddenError();
   if (day.stops.length < 3) throw new ConflictError("Need ≥ 3 stops to optimize");
   const remaining = [...day.stops];
-  const ordered = [remaining.shift()!];
+  const first = remaining.shift();
+  if (!first) throw new ConflictError("No stops to optimize");
+  const ordered: typeof day.stops = [first];
   while (remaining.length > 0) {
-    const last = ordered[ordered.length - 1]!;
+    const last = ordered[ordered.length - 1];
+    if (!last) break;
     let bestIdx = 0;
     let bestDist = Number.POSITIVE_INFINITY;
     for (let i = 0; i < remaining.length; i++) {
-      const r = remaining[i]!;
+      const r = remaining[i];
+      if (!r) continue;
       const d = haversineKm(
         { lat: last.attraction.latitude, lng: last.attraction.longitude },
         { lat: r.attraction.latitude, lng: r.attraction.longitude },
@@ -238,7 +259,8 @@ export async function optimizeDay(args: { dayId: string; userId: string }) {
         bestIdx = i;
       }
     }
-    ordered.push(remaining.splice(bestIdx, 1)[0]!);
+    const picked = remaining.splice(bestIdx, 1)[0];
+    if (picked) ordered.push(picked);
   }
   await prisma.$transaction(
     ordered.map((s, idx) =>

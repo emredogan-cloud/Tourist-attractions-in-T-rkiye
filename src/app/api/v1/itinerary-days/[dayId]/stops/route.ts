@@ -11,7 +11,10 @@ export const dynamic = "force-dynamic";
 const AddBody = z.object({
   attractionId: z.string(),
   plannedDurationMin: z.number().int().min(15).max(720).optional(),
-  plannedArrivalTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  plannedArrivalTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/)
+    .optional(),
 });
 
 export async function POST(request: NextRequest, ctx: { params: Promise<{ dayId: string }> }) {

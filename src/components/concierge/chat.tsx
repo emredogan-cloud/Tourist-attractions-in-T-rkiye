@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useEffect, useId, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 import type { Locale } from "~/lib/i18n/config";
 
-type Msg = { role: "user" | "assistant"; content: string; citations?: { slug: string; name: string }[] };
+type Msg = {
+  role: "user" | "assistant";
+  content: string;
+  citations?: { slug: string; name: string }[];
+};
 
 export function ConciergeChat({ locale }: { locale: Locale }) {
   const t = useTranslations("concierge");
@@ -14,10 +18,14 @@ export function ConciergeChat({ locale }: { locale: Locale }) {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
-  const [draftItin, setDraftItin] = useState<{ title: string; days: { dayNumber: number; stopSlugs: string[] }[] } | null>(null);
+  const [draftItin, setDraftItin] = useState<{
+    title: string;
+    days: { dayNumber: number; stopSlugs: string[] }[];
+  } | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputId = useId();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll only on message change
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
@@ -68,7 +76,10 @@ export function ConciergeChat({ locale }: { locale: Locale }) {
             const parsed = JSON.parse(json) as
               | { type: "text"; delta: string }
               | { type: "citation"; slug: string; name: string }
-              | { type: "itinerary"; itinerary: { title: string; days: { dayNumber: number; stopSlugs: string[] }[] } }
+              | {
+                  type: "itinerary";
+                  itinerary: { title: string; days: { dayNumber: number; stopSlugs: string[] }[] };
+                }
               | { type: "tokens"; input: number; output: number }
               | { type: "done" }
               | { type: "end" }
@@ -77,7 +88,11 @@ export function ConciergeChat({ locale }: { locale: Locale }) {
               textBuffer += parsed.delta;
               setMessages((m) => {
                 const copy = [...m];
-                copy[copy.length - 1] = { role: "assistant", content: textBuffer, citations: cites };
+                copy[copy.length - 1] = {
+                  role: "assistant",
+                  content: textBuffer,
+                  citations: cites,
+                };
                 return copy;
               });
             } else if (parsed.type === "citation") {
@@ -122,7 +137,9 @@ export function ConciergeChat({ locale }: { locale: Locale }) {
     let dayId = j.itinerary.days[0]?.id;
     for (const d of draftItin.days) {
       if (d.dayNumber > 1) {
-        const dayResp = await fetch(`/api/v1/itineraries/${j.itinerary.id}/days`, { method: "POST" });
+        const dayResp = await fetch(`/api/v1/itineraries/${j.itinerary.id}/days`, {
+          method: "POST",
+        });
         const dj = (await dayResp.json()) as { day: { id: string } };
         dayId = dj.day.id;
       }
@@ -175,7 +192,7 @@ export function ConciergeChat({ locale }: { locale: Locale }) {
         ) : (
           messages.map((m, i) => (
             <div
-              key={i}
+              key={`msg-${i}-${m.role}`}
               className={
                 m.role === "user"
                   ? "ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-3 py-2 text-primary-foreground"
@@ -190,17 +207,17 @@ export function ConciergeChat({ locale }: { locale: Locale }) {
               </div>
               {m.citations && m.citations.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
-                  {Array.from(
-                    new Map(m.citations.map((c) => [c.slug, c.name])).entries(),
-                  ).map(([slug, name]) => (
-                    <a
-                      key={slug}
-                      href={`/${locale}/attractions/${slug}`}
-                      className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 text-xs hover:border-primary hover:text-primary"
-                    >
-                      {name} ↗
-                    </a>
-                  ))}
+                  {Array.from(new Map(m.citations.map((c) => [c.slug, c.name])).entries()).map(
+                    ([slug, name]) => (
+                      <a
+                        key={slug}
+                        href={`/${locale}/attractions/${slug}`}
+                        className="inline-flex items-center rounded-full border border-border bg-secondary px-2 py-0.5 text-xs hover:border-primary hover:text-primary"
+                      >
+                        {name} ↗
+                      </a>
+                    ),
+                  )}
                 </div>
               )}
             </div>

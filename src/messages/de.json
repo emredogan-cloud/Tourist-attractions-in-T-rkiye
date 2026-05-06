@@ -61,14 +61,24 @@
     "featured": "Empfohlene Orte",
     "exploreByRegion": "Nach Region",
     "exploreByCategory": "Nach Kategorie",
-    "stats": { "attractions": "{count}+ Orte", "regions": "7 Regionen", "provinces": "81 Provinzen", "languages": "5 Sprachen" },
+    "stats": {
+      "attractions": "{count}+ Orte",
+      "regions": "7 Regionen",
+      "provinces": "81 Provinzen",
+      "languages": "5 Sprachen"
+    },
     "popularSearches": "Beliebte Suchen"
   },
   "attractions": {
     "all": "Alle Sehenswürdigkeiten",
     "filters": "Filter",
     "sortBy": "Sortieren nach",
-    "sort": { "popular": "Beliebt", "ratingDesc": "Bewertung (hoch)", "ratingAsc": "Bewertung (niedrig)", "newest": "Neueste" },
+    "sort": {
+      "popular": "Beliebt",
+      "ratingDesc": "Bewertung (hoch)",
+      "ratingAsc": "Bewertung (niedrig)",
+      "newest": "Neueste"
+    },
     "filterCategory": "Kategorie",
     "filterRegion": "Region",
     "filterProvince": "Provinz",
@@ -90,9 +100,24 @@
     "unfavorite": "Aus Favoriten",
     "addToItinerary": "Zum Reiseplan",
     "shareWithFriends": "Mit Freunden teilen",
-    "audience": { "ADULT": "Erwachsener", "STUDENT": "Student", "CHILD": "Kind", "SENIOR": "Senior", "FOREIGN_ADULT": "Ausländischer Erwachsener", "FOREIGN_STUDENT": "Ausländischer Student" },
+    "audience": {
+      "ADULT": "Erwachsener",
+      "STUDENT": "Student",
+      "CHILD": "Kind",
+      "SENIOR": "Senior",
+      "FOREIGN_ADULT": "Ausländischer Erwachsener",
+      "FOREIGN_STUDENT": "Ausländischer Student"
+    },
     "season": { "SUMMER": "Sommer", "WINTER": "Winter", "ALL_YEAR": "Ganzjährig" },
-    "days": { "0": "Sonntag", "1": "Montag", "2": "Dienstag", "3": "Mittwoch", "4": "Donnerstag", "5": "Freitag", "6": "Samstag" },
+    "days": {
+      "0": "Sonntag",
+      "1": "Montag",
+      "2": "Dienstag",
+      "3": "Mittwoch",
+      "4": "Donnerstag",
+      "5": "Freitag",
+      "6": "Samstag"
+    },
     "directionsTitle": "Wegbeschreibung",
     "directionsGoogle": "Google Maps",
     "directionsApple": "Apple Maps",
@@ -122,7 +147,12 @@
       "characterCount": "{current}/{max} Zeichen",
       "pendingMessage": "Deine Bewertung wird geprüft."
     },
-    "sort": { "recent": "Neueste", "helpful": "Hilfreich", "ratingHigh": "Höchste", "ratingLow": "Niedrigste" },
+    "sort": {
+      "recent": "Neueste",
+      "helpful": "Hilfreich",
+      "ratingHigh": "Höchste",
+      "ratingLow": "Niedrigste"
+    },
     "helpful": "Hilfreich",
     "report": "Melden",
     "reportTitle": "Bewertung melden",
@@ -187,8 +217,20 @@
     "totalDuration": "Gesamtdauer",
     "totalDistance": "Gesamtstrecke"
   },
-  "favorites": { "title": "Favoriten", "empty": "Noch keine Favoriten.", "browseAttractions": "Sehenswürdigkeiten ansehen" },
-  "events": { "title": "Veranstaltungen & Festivals", "today": "Heute", "thisWeek": "Diese Woche", "thisMonth": "Diesen Monat", "upcoming": "Bevorstehend", "weatherToday": "Wetter heute", "openingNow": "Jetzt geöffnet" },
+  "favorites": {
+    "title": "Favoriten",
+    "empty": "Noch keine Favoriten.",
+    "browseAttractions": "Sehenswürdigkeiten ansehen"
+  },
+  "events": {
+    "title": "Veranstaltungen & Festivals",
+    "today": "Heute",
+    "thisWeek": "Diese Woche",
+    "thisMonth": "Diesen Monat",
+    "upcoming": "Bevorstehend",
+    "weatherToday": "Wetter heute",
+    "openingNow": "Jetzt geöffnet"
+  },
   "nearby": {
     "title": "Nahe Hotels & Restaurants",
     "hotels": "Hotels",

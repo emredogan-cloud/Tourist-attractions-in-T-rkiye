@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
-import { prisma } from "~/server/db/client";
-import { turkishNormalize } from "~/lib/utils";
 import type { Locale } from "~/lib/i18n/config";
+import { turkishNormalize } from "~/lib/utils";
+import { prisma } from "~/server/db/client";
 import type { AIProvider, ConciergeChunk, ConciergeRequest, ItineraryDraft } from "./types";
 
 // A deterministic mock concierge: parses simple natural-language patterns,
@@ -9,7 +9,10 @@ import type { AIProvider, ConciergeChunk, ConciergeRequest, ItineraryDraft } fro
 // the structure of the Anthropic provider (text deltas + citations + optional
 // itinerary block + done). Useful for offline demos and tests.
 
-function detectIntent(text: string, locale: Locale): {
+function detectIntent(
+  text: string,
+  _locale: Locale,
+): {
   kind: "itinerary" | "info" | "explore";
   days: number;
   city: string | null;
@@ -18,10 +21,32 @@ function detectIntent(text: string, locale: Locale): {
   const norm = turkishNormalize(text);
   const dayMatches = norm.match(/(\d+)[\s-]*(g[uü]n|day|days)/i);
   const days = dayMatches ? Math.min(Math.max(Number(dayMatches[1] ?? 3), 1), 14) : 0;
-  const city = ["istanbul", "kapadokya", "cappadocia", "izmir", "antalya", "ankara", "trabzon", "denizli", "sanliurfa", "adiyaman"]
-    .find((c) => norm.includes(c)) ?? null;
+  const city =
+    [
+      "istanbul",
+      "kapadokya",
+      "cappadocia",
+      "izmir",
+      "antalya",
+      "ankara",
+      "trabzon",
+      "denizli",
+      "sanliurfa",
+      "adiyaman",
+    ].find((c) => norm.includes(c)) ?? null;
   const themes: string[] = [];
-  for (const theme of ["history", "tarih", "doga", "nature", "yemek", "food", "kultur", "culture", "macera", "adventure"]) {
+  for (const theme of [
+    "history",
+    "tarih",
+    "doga",
+    "nature",
+    "yemek",
+    "food",
+    "kultur",
+    "culture",
+    "macera",
+    "adventure",
+  ]) {
     if (norm.includes(theme)) themes.push(theme);
   }
   let kind: "itinerary" | "info" | "explore" = "info";
@@ -36,7 +61,10 @@ async function retrieveAttractions(args: {
   locale: Locale;
   limit: number;
 }) {
-  const themeMap: Record<string, "HISTORICAL" | "NATURAL" | "CULTURAL" | "FOOD_DRINK" | "ADVENTURE"> = {
+  const themeMap: Record<
+    string,
+    "HISTORICAL" | "NATURAL" | "CULTURAL" | "FOOD_DRINK" | "ADVENTURE"
+  > = {
     history: "HISTORICAL",
     tarih: "HISTORICAL",
     nature: "NATURAL",
@@ -79,7 +107,9 @@ function localized(s: { tr: string; en: string }, locale: Locale): string {
   return locale === "en" ? s.en : s.tr;
 }
 
-async function* generateItineraryResponse(req: ConciergeRequest): AsyncGenerator<ConciergeChunk, void, unknown> {
+async function* generateItineraryResponse(
+  req: ConciergeRequest,
+): AsyncGenerator<ConciergeChunk, void, unknown> {
   const last = req.messages[req.messages.length - 1];
   const text = last?.content ?? "";
   const intent = detectIntent(text, req.locale);
@@ -150,8 +180,8 @@ async function* generateItineraryResponse(req: ConciergeRequest): AsyncGenerator
     type: "text",
     delta: localized(
       {
-        tr: "İsterseniz bunu rotanıza kaydedebilirim — \"Rota olarak kaydet\" butonuna tıklayın.",
-        en: "Want me to save this to your itineraries? Click \"Save as itinerary\" below.",
+        tr: 'İsterseniz bunu rotanıza kaydedebilirim — "Rota olarak kaydet" butonuna tıklayın.',
+        en: 'Want me to save this to your itineraries? Click "Save as itinerary" below.',
       },
       req.locale,
     ),
@@ -162,7 +192,9 @@ async function* generateItineraryResponse(req: ConciergeRequest): AsyncGenerator
   yield { type: "done" };
 }
 
-async function* generateInfoResponse(req: ConciergeRequest): AsyncGenerator<ConciergeChunk, void, unknown> {
+async function* generateInfoResponse(
+  req: ConciergeRequest,
+): AsyncGenerator<ConciergeChunk, void, unknown> {
   const last = req.messages[req.messages.length - 1];
   const text = last?.content ?? "";
   const intent = detectIntent(text, req.locale);
@@ -173,21 +205,22 @@ async function* generateInfoResponse(req: ConciergeRequest): AsyncGenerator<Conc
     limit: 5,
   });
 
-  const intro = attrs.length > 0
-    ? localized(
-        {
-          tr: `İşte size özetleyebileceğim birkaç gezi yeri:\n\n`,
-          en: `Here are a few attractions I can highlight:\n\n`,
-        },
-        req.locale,
-      )
-    : localized(
-        {
-          tr: `Sorunuza biraz daha somut yanıt vermek için şehir, tarih veya ilgi alanı belirtirseniz yardımcı olurum.`,
-          en: `If you share a city, date, or interest area, I can be more specific.`,
-        },
-        req.locale,
-      );
+  const intro =
+    attrs.length > 0
+      ? localized(
+          {
+            tr: "İşte size özetleyebileceğim birkaç gezi yeri:\n\n",
+            en: "Here are a few attractions I can highlight:\n\n",
+          },
+          req.locale,
+        )
+      : localized(
+          {
+            tr: "Sorunuza biraz daha somut yanıt vermek için şehir, tarih veya ilgi alanı belirtirseniz yardımcı olurum.",
+            en: "If you share a city, date, or interest area, I can be more specific.",
+          },
+          req.locale,
+        );
 
   for (const word of intro.split(/(\s+)/)) {
     yield { type: "text", delta: word };

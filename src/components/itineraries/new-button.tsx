@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
 export function ItinerariesNew() {
@@ -34,6 +34,7 @@ export function ItinerariesNew() {
   return (
     <form onSubmit={onSubmit} className="flex items-center gap-2">
       <input
+        // biome-ignore lint/a11y/noAutofocus: focus is intentional when the create form opens
         autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}

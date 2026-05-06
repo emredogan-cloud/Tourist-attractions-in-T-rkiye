@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { type Locale, isLocale } from "~/lib/i18n/config";
 import { GlobalSearch } from "~/components/global-search";
+import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
 import { getSearchProvider } from "~/server/providers/search";
 
@@ -11,7 +11,13 @@ export default async function SearchPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string; category?: string; region?: string; isFreeEntry?: string; isUnesco?: string }>;
+  searchParams: Promise<{
+    q?: string;
+    category?: string;
+    region?: string;
+    isFreeEntry?: string;
+    isUnesco?: string;
+  }>;
 }) {
   const { locale: localeParam } = await params;
   const sp = await searchParams;

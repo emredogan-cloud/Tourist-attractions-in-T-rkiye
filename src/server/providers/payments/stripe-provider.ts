@@ -1,5 +1,5 @@
 import { UpstreamError } from "~/lib/errors";
-import type { CheckoutSession, PaymentProvider, PaymentPlan, WebhookEvent } from "./types";
+import type { CheckoutSession, PaymentProvider, WebhookEvent } from "./types";
 
 // Stripe (international) provider stub. To activate, install `stripe` and
 // replace the bodies. The shape is identical so callers don't change.

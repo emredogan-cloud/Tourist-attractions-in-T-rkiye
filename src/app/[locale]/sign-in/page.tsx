@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { SignInForm } from "~/components/auth/sign-in-form";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { getCurrentSession } from "~/server/providers/auth";
-import { SignInForm } from "~/components/auth/sign-in-form";
 
 export const dynamic = "force-dynamic";
 

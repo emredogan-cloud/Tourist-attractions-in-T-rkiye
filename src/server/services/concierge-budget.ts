@@ -1,5 +1,5 @@
-import { prisma } from "~/server/db/client";
 import { RateLimitError } from "~/lib/errors";
+import { prisma } from "~/server/db/client";
 
 const FREE_DAILY_TOKENS = 50_000;
 const PREMIUM_DAILY_TOKENS = 1_000_000;

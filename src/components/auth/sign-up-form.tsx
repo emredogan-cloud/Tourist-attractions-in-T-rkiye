@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import type { Locale } from "~/lib/i18n/config";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
+import type { Locale } from "~/lib/i18n/config";
 
 const CONSENT_VERSION = "2026-05-05";
 
@@ -125,7 +125,7 @@ export function SignUpForm({ locale }: { locale: Locale }) {
         </p>
       )}
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? t("signUp") + "…" : t("signUp")}
+        {pending ? `${t("signUp")}…` : t("signUp")}
       </Button>
     </form>
   );

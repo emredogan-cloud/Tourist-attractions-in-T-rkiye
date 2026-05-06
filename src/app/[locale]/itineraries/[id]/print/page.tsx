@@ -17,7 +17,11 @@ export default async function ItineraryPrintPage({
   const it = await getItinerary({ id, userId: session.user.id });
   return (
     <div className="container max-w-3xl py-8 print:py-2">
-      <style>{`@media print { header, footer, nav, .no-print { display: none !important; } body { color: #000 !important; background: #fff !important; } }`}</style>
+      <style>
+        {
+          "@media print { header, footer, nav, .no-print { display: none !important; } body { color: #000 !important; background: #fff !important; } }"
+        }
+      </style>
       <header className="border-b pb-3">
         <h1 className="font-display text-3xl font-bold">{it.title}</h1>
         {it.description && <p className="mt-1 text-muted-foreground">{it.description}</p>}
@@ -53,7 +57,11 @@ export default async function ItineraryPrintPage({
         ))}
       </div>
       <div className="mt-8 border-t pt-3 text-center text-xs text-muted-foreground no-print">
-        <button type="button" onClick={() => window.print()} className="rounded-md border px-3 py-1.5 hover:bg-secondary">
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="rounded-md border px-3 py-1.5 hover:bg-secondary"
+        >
           Print / Save as PDF
         </button>
       </div>

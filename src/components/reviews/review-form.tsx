@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Button } from "~/components/ui/button";
 
 const DRAFT_KEY = "tt:review-draft:v1";
@@ -114,11 +114,10 @@ export function ReviewForm({
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal
+    <dialog
+      open
       aria-label={t("form.title")}
-      className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 grid h-full max-h-none w-full max-w-none place-items-center bg-black/50 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       onKeyDown={(e) => {
         if (e.key === "Escape") onClose();
@@ -238,6 +237,6 @@ export function ReviewForm({
           </div>
         </form>
       </div>
-    </div>
+    </dialog>
   );
 }

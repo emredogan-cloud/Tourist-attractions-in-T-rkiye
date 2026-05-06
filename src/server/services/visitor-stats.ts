@@ -1,5 +1,5 @@
-import { prisma } from "~/server/db/client";
 import { NotFoundError, ValidationError } from "~/lib/errors";
+import { prisma } from "~/server/db/client";
 
 export type VisitorPoint = { year: number; month: number; visitorCount: number };
 
@@ -39,7 +39,8 @@ export async function getVisitorStats(args: {
   // Filter in memory for from/to
   const points: VisitorPoint[] = rows
     .filter((r) => {
-      if (from && (r.year < from.year || (r.year === from.year && r.month < from.month))) return false;
+      if (from && (r.year < from.year || (r.year === from.year && r.month < from.month)))
+        return false;
       if (to && (r.year > to.year || (r.year === to.year && r.month > to.month))) return false;
       return true;
     })

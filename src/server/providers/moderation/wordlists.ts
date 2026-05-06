@@ -14,16 +14,7 @@ export const PROFANITY_TR = [
   "amına",
 ];
 
-export const PROFANITY_EN = [
-  "fuck",
-  "shit",
-  "asshole",
-  "bitch",
-  "bastard",
-  "cunt",
-  "dick",
-  "piss",
-];
+export const PROFANITY_EN = ["fuck", "shit", "asshole", "bitch", "bastard", "cunt", "dick", "piss"];
 
 export const PII_PATTERNS: RegExp[] = [
   /\b\d{11}\b/, // TC kimlik (11 digits)

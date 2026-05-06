@@ -1,11 +1,10 @@
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+import { ItinerariesNew } from "~/components/itineraries/new-button";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
-import { Button } from "~/components/ui/button";
 import { getCurrentSession } from "~/server/providers/auth";
 import { listMyItineraries } from "~/server/services/itineraries";
-import { ItinerariesNew } from "~/components/itineraries/new-button";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +43,8 @@ export default async function ItinerariesPage({
                 <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{it.description}</p>
               )}
               <p className="mt-3 text-xs text-muted-foreground">
-                {it.days.length} × {t("day", { number: 1 })} · {it.days.reduce((s, d) => s + d.stops.length, 0)} stops
+                {it.days.length} × {t("day", { number: 1 })} ·{" "}
+                {it.days.reduce((s, d) => s + d.stops.length, 0)} stops
               </p>
             </Link>
           ))

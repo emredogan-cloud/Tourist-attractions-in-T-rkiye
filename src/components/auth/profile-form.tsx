@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { Button } from "~/components/ui/button";
 import type { Locale } from "~/lib/i18n/config";
 import { mvpLocales } from "~/lib/i18n/config";
-import { Button } from "~/components/ui/button";
 
 export function ProfileForm({ initial }: { initial: { displayName: string; locale: Locale } }) {
   const t = useTranslations("auth");

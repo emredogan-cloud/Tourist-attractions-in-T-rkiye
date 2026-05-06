@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
+import { PremiumActions } from "~/components/premium-actions";
 import { type Locale, isLocale } from "~/lib/i18n/config";
 import { getCurrentSession } from "~/server/providers/auth";
-import { getCurrentSubscription } from "~/server/services/subscriptions";
-import { PremiumActions } from "~/components/premium-actions";
 import { PLAN_PRICING } from "~/server/providers/payments";
+import { getCurrentSubscription } from "~/server/services/subscriptions";
 
 export const dynamic = "force-dynamic";
 
@@ -24,9 +24,7 @@ export default async function PremiumPage({
           Türkiye+
         </span>
         <h1 className="mt-3 font-display text-4xl font-bold">
-          {locale === "tr"
-            ? "Türkiye'yi sınırsız keşfedin"
-            : "Discover Türkiye, unlimited"}
+          {locale === "tr" ? "Türkiye'yi sınırsız keşfedin" : "Discover Türkiye, unlimited"}
         </h1>
         <p className="mt-2 text-lg text-muted-foreground">
           {locale === "tr"
@@ -36,10 +34,7 @@ export default async function PremiumPage({
       </header>
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         {(["turkiye_plus_monthly", "turkiye_plus_yearly"] as const).map((plan) => (
-          <article
-            key={plan}
-            className="rounded-2xl border border-border bg-card p-6"
-          >
+          <article key={plan} className="rounded-2xl border border-border bg-card p-6">
             <h2 className="font-display text-lg font-semibold">{PLAN_PRICING[plan].description}</h2>
             <p className="mt-2 text-3xl font-bold tabular-nums">
               ₺{PLAN_PRICING[plan].monthlyTryEquivalent}

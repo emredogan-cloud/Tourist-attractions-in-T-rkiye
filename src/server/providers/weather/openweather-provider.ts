@@ -24,7 +24,11 @@ function mapCondition(id: number): WeatherCondition {
 export class OpenWeatherProvider implements WeatherProvider {
   readonly name = "openweather";
 
-  async current({ lat, lng, locale }: { lat: number; lng: number; locale: "tr" | "en" }): Promise<WeatherSnapshot> {
+  async current({
+    lat,
+    lng,
+    locale,
+  }: { lat: number; lng: number; locale: "tr" | "en" }): Promise<WeatherSnapshot> {
     const config = getConfig();
     if (!config.OPENWEATHER_API_KEY) {
       throw new UpstreamError("openweather", "OPENWEATHER_API_KEY missing");

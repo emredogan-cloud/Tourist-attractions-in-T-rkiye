@@ -1,8 +1,8 @@
-import { prisma } from "~/server/db/client";
 import { NotFoundError } from "~/lib/errors";
 import { logger } from "~/lib/logger";
 import { haversineKm } from "~/lib/utils";
-import { getProviderFor, type NearbyType } from "~/server/providers/nearby";
+import { prisma } from "~/server/db/client";
+import { type NearbyType, getProviderFor } from "~/server/providers/nearby";
 
 const DEFAULT_RADIUS_M = 5000;
 const TTL_DAYS = 7;
@@ -31,8 +31,7 @@ export async function nearbyForAttraction(args: {
     where: { attractionId: attraction.id, type: args.type },
     orderBy: { distanceM: "asc" },
   });
-  const isStale =
-    cached.length === 0 || cached.every((p) => p.expiresAt.getTime() < Date.now());
+  const isStale = cached.length === 0 || cached.every((p) => p.expiresAt.getTime() < Date.now());
 
   let rows = cached;
   if (isStale) {
@@ -46,7 +45,9 @@ export async function nearbyForAttraction(args: {
         limit: 10,
       });
       // Wipe old cache and replace
-      await prisma.nearbyPlace.deleteMany({ where: { attractionId: attraction.id, type: args.type } });
+      await prisma.nearbyPlace.deleteMany({
+        where: { attractionId: attraction.id, type: args.type },
+      });
       const expiresAt = new Date(Date.now() + TTL_DAYS * 24 * 3600 * 1000);
       const inserts = fetched.map((p) => ({
         attractionId: attraction.id,
@@ -58,7 +59,12 @@ export async function nearbyForAttraction(args: {
         lng: p.lng,
         rating: p.rating,
         priceLevel: p.priceLevel,
-        distanceM: Math.round(haversineKm({ lat: attraction.latitude, lng: attraction.longitude }, { lat: p.lat, lng: p.lng }) * 1000),
+        distanceM: Math.round(
+          haversineKm(
+            { lat: attraction.latitude, lng: attraction.longitude },
+            { lat: p.lat, lng: p.lng },
+          ) * 1000,
+        ),
         photoUrl: p.photoUrl,
         externalUrl: p.externalUrl,
         metadata: p.metadata ? JSON.stringify(p.metadata) : null,

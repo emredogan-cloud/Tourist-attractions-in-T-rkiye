@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { type Locale, isLocale } from "~/lib/i18n/config";
 import { ConciergeChat } from "~/components/concierge/chat";
+import { type Locale, isLocale } from "~/lib/i18n/config";
 
 export const dynamic = "force-dynamic";
 

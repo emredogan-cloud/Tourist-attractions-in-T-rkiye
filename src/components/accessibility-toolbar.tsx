@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { cn } from "~/lib/utils";
 import { useAccessibility } from "./accessibility-context";
 import { Button } from "./ui/button";
-import { cn } from "~/lib/utils";
 
 export function AccessibilityToolbar() {
   const tc = useTranslations("common");
@@ -23,8 +23,8 @@ export function AccessibilityToolbar() {
         <span aria-hidden>♿</span>
       </button>
       {open && (
-        <div
-          role="dialog"
+        <dialog
+          open
           aria-label="Accessibility settings"
           className="absolute right-0 z-30 mt-2 w-72 rounded-md border border-border bg-popover p-3 shadow-lg"
         >
@@ -73,7 +73,7 @@ export function AccessibilityToolbar() {
               {tc("close")}
             </Button>
           </div>
-        </div>
+        </dialog>
       )}
     </div>
   );

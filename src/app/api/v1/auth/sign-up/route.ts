@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { parseJsonBodyWith } from "~/lib/api-helpers";
 import { problem } from "~/lib/api-response";
-import { applySetCookie, getAuthProvider } from "~/server/providers/auth";
 import { isLocale } from "~/lib/i18n/config";
 import { clientIp, enforce } from "~/lib/rate-limit";
+import { applySetCookie, getAuthProvider } from "~/server/providers/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,7 +36,10 @@ export async function POST(request: NextRequest) {
     });
     const headers = new Headers({ "Cache-Control": "no-store" });
     applySetCookie(headers, setCookie);
-    return NextResponse.json({ user: session.user, expiresAt: session.expiresAt }, { headers, status: 201 });
+    return NextResponse.json(
+      { user: session.user, expiresAt: session.expiresAt },
+      { headers, status: 201 },
+    );
   } catch (err) {
     return problem(err, request.url);
   }

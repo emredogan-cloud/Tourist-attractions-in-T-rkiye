@@ -1,8 +1,8 @@
 import type { User } from "@prisma/client";
-import { prisma } from "~/server/db/client";
 import { ConflictError, NotFoundError, ValidationError } from "~/lib/errors";
-import { isLocale, type Locale } from "~/lib/i18n/config";
+import { type Locale, isLocale } from "~/lib/i18n/config";
 import { logger } from "~/lib/logger";
+import { prisma } from "~/server/db/client";
 
 export async function getUserProfile(userId: string) {
   const user = await prisma.user.findUnique({
@@ -28,7 +28,12 @@ export async function getUserProfile(userId: string) {
 
 export async function updateUserProfile(
   userId: string,
-  patch: { displayName?: string | null; avatarUrl?: string | null; locale?: Locale; marketingOptIn?: boolean },
+  patch: {
+    displayName?: string | null;
+    avatarUrl?: string | null;
+    locale?: Locale;
+    marketingOptIn?: boolean;
+  },
 ) {
   if (patch.displayName && patch.displayName.length > 80) {
     throw new ValidationError("Display name too long");
@@ -44,7 +49,14 @@ export async function updateUserProfile(
       ...(patch.locale !== undefined ? { locale: patch.locale } : {}),
       ...(patch.marketingOptIn !== undefined ? { marketingOptIn: patch.marketingOptIn } : {}),
     },
-    select: { id: true, email: true, displayName: true, avatarUrl: true, locale: true, marketingOptIn: true },
+    select: {
+      id: true,
+      email: true,
+      displayName: true,
+      avatarUrl: true,
+      locale: true,
+      marketingOptIn: true,
+    },
   });
 }
 
@@ -86,9 +98,18 @@ export async function exportUserData(userId: string) {
   const [favorites, reviews, itineraries, pushTokens, conciergeMessages] = await Promise.all([
     prisma.favorite.findMany({ where: { userId } }),
     prisma.review.findMany({ where: { userId } }),
-    prisma.itinerary.findMany({ where: { userId }, include: { days: { include: { stops: true } } } }),
-    prisma.pushToken.findMany({ where: { userId }, select: { platform: true, locale: true, createdAt: true } }),
-    prisma.conciergeMessage.findMany({ where: { userId }, select: { role: true, content: true, createdAt: true } }),
+    prisma.itinerary.findMany({
+      where: { userId },
+      include: { days: { include: { stops: true } } },
+    }),
+    prisma.pushToken.findMany({
+      where: { userId },
+      select: { platform: true, locale: true, createdAt: true },
+    }),
+    prisma.conciergeMessage.findMany({
+      where: { userId },
+      select: { role: true, content: true, createdAt: true },
+    }),
   ]);
   // Strip raw password / sensitive auth fields
   const { passwordHash: _ph, ...safeUser } = user;
