@@ -9,8 +9,10 @@ import { JsonLd } from "~/components/json-ld";
 import { OperatingHoursTable } from "~/components/operating-hours";
 import { PricingTable } from "~/components/pricing-table";
 import { NearbySection } from "~/components/nearby-section";
+import { OpenNowBadge } from "~/components/open-now-badge";
 import { ReviewsSection } from "~/components/reviews/reviews-section";
 import { VisitorStatsChart } from "~/components/visitor-stats-chart";
+import { WeatherWidget } from "~/components/weather-widget";
 import { ShareButton } from "~/components/share-button";
 import { Badge } from "~/components/ui/badge";
 import { NotFoundError, isAppError } from "~/lib/errors";
@@ -18,6 +20,7 @@ import { type Locale, isLocale } from "~/lib/i18n/config";
 import { Link } from "~/lib/i18n/routing";
 import { getCurrentSession } from "~/server/providers/auth";
 import { getAttractionBySlug, listAttractions } from "~/server/services/attractions";
+import { getCurrentClosures, isOpenNow } from "~/server/services/events";
 import { listReviews } from "~/server/services/reviews";
 import { getVisitorStats } from "~/server/services/visitor-stats";
 import { isFavorite } from "~/server/services/users";
@@ -83,11 +86,16 @@ export default async function AttractionDetailPage({
   }
 
   const session = await getCurrentSession();
-  const [reviews, favorited, stats] = await Promise.all([
+  const [reviews, favorited, stats, closures] = await Promise.all([
     listReviews({ attractionSlug: detail.slug, sort: "recent", limit: 10 }),
     session ? isFavorite(session.user.id, detail.id) : Promise.resolve(false),
     getVisitorStats({ slug: detail.slug }).catch(() => ({ source: "", points: [], annual: [] })),
+    getCurrentClosures({ attractionId: detail.id }).catch(() => []),
   ]);
+  const openStatus = isOpenNow({
+    hours: detail.operatingHours,
+    closures: closures.map((c) => ({ startsAt: c.startsAt, endsAt: c.endsAt })),
+  });
 
   const ld = {
     "@context": "https://schema.org",
@@ -140,6 +148,7 @@ export default async function AttractionDetailPage({
               <Badge variant="muted">{detail.category.name}</Badge>
               {detail.unescoStatus && <Badge variant="gold">{t("unesco")}</Badge>}
               {detail.isFreeEntry && <Badge variant="success">{tc("free")}</Badge>}
+              <OpenNowBadge status={openStatus} />
               <span className="text-sm text-muted-foreground">
                 {detail.province.name}
                 {detail.district ? ` / ${detail.district}` : ""}
@@ -251,6 +260,19 @@ export default async function AttractionDetailPage({
                 {detail.elevationM ? ` · ${detail.elevationM} m` : ""}
               </p>
             </SidebarBlock>
+            <WeatherWidget lat={detail.latitude} lng={detail.longitude} />
+            {closures.length > 0 && (
+              <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">
+                <p className="text-xs font-semibold uppercase tracking-wide text-amber-900 dark:text-amber-200">
+                  {locale === "en" ? "Active closure" : "Aktif kapatma"}
+                </p>
+                {closures.map((c) => (
+                  <p key={c.id} className="mt-1 text-sm text-amber-900 dark:text-amber-200">
+                    {locale === "en" ? c.titleEn : c.titleTr}
+                  </p>
+                ))}
+              </div>
+            )}
           </aside>
         </div>
       </div>
