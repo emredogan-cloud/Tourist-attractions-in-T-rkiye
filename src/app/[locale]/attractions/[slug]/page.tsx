@@ -8,6 +8,7 @@ import { Gallery } from "~/components/gallery";
 import { JsonLd } from "~/components/json-ld";
 import { OperatingHoursTable } from "~/components/operating-hours";
 import { PricingTable } from "~/components/pricing-table";
+import { AccessibilitySection } from "~/components/accessibility-section";
 import { NearbySection } from "~/components/nearby-section";
 import { OpenNowBadge } from "~/components/open-now-badge";
 import { ReviewsSection } from "~/components/reviews/reviews-section";
@@ -260,6 +261,7 @@ export default async function AttractionDetailPage({
                 {detail.elevationM ? ` · ${detail.elevationM} m` : ""}
               </p>
             </SidebarBlock>
+            <AccessibilitySection flags={detail.accessibility} locale={locale} />
             <WeatherWidget lat={detail.latitude} lng={detail.longitude} />
             {closures.length > 0 && (
               <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">

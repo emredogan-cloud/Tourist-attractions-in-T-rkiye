@@ -72,3 +72,49 @@
 [data-rtl="true"] {
   direction: rtl;
 }
+
+/* Phase 14 — accessibility */
+html {
+  font-size: calc(16px * var(--a11y-font-scale, 1));
+}
+
+html.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --primary: 0 100% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --border: 0 0% 0%;
+  --input: 0 0% 50%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 0 0% 15%;
+  --ring: 0 100% 35%;
+}
+
+html.high-contrast.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 100%;
+  --primary: 60 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+  --input: 0 0% 70%;
+  --muted: 0 0% 10%;
+  --muted-foreground: 0 0% 90%;
+  --ring: 60 100% 50%;
+}
+
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
